@@ -191,6 +191,7 @@ module Inlining = struct
       Not_inlinable
     | Block_approximation _ -> assert false
     | Closure_approximation (code_id, None) ->
+      (* Format.eprintf "No infos\n"; *)
       Inlining_report.record_decision ~dbg
         (At_call_site
            (Inlining_report.Known_function
@@ -199,6 +200,7 @@ module Inlining = struct
               }));
       Not_inlinable
     | Closure_approximation (code_id, Some code) ->
+      (* Format.eprintf "Some infos\n"; *)
       let fun_params_length =
         Code.params_arity code |> Flambda_arity.With_subkinds.to_arity
         |> Flambda_arity.length
@@ -1375,10 +1377,10 @@ let close_let_rec acc env ~function_declarations
     named ~body
   |> Expr_with_acc.create_let
 
-let close_program ~symbol_for_global ~big_endian ~module_ident
+let close_program ~symbol_for_global ~big_endian ~cmx_loader ~module_ident
     ~module_block_size_in_words ~program ~prog_return_cont ~exn_continuation =
   let symbol_for_global ident = symbol_for_global ?comp_unit:None ident in
-  let env = Env.create ~symbol_for_global ~big_endian in
+  let env = Env.create ~symbol_for_global ~big_endian ~cmx_loader in
   let module_symbol =
     symbol_for_global (Ident.create_persistent (Ident.name module_ident))
   in
@@ -1460,6 +1462,18 @@ let close_program ~symbol_for_global ~big_endian ~module_ident
       ~handler_params:load_fields_handler_param ~handler:load_fields_body ~body
       ~is_exn_handler:false
   in
+  let module_block_approximation =
+    match Acc.continuation_known_arguments ~cont:prog_return_cont acc with
+    | Some [approx] -> approx
+    | Some l ->
+      Format.eprintf "%a, approx len: %d\n" Continuation.print prog_return_cont
+        (List.length l);
+      assert false
+    | _ ->
+      Format.eprintf "%a, approx len: none\n" Continuation.print
+        prog_return_cont;
+      Value_approximation.Value_unknown
+  in
   let acc, body =
     Code_id.Map.fold
       (fun code_id code (acc, body) ->
@@ -1491,6 +1505,15 @@ let close_program ~symbol_for_global ~big_endian ~module_ident
       in
       acc
   in
+  let symbols_approximations =
+    List.fold_left
+      (fun sa (symbol, _) ->
+        (* CR Keryan: for now only constants are lifted. It will need refinement
+           with thelifting of closed functions *)
+        Symbol.Map.add symbol Value_approximation.Value_unknown sa)
+      (Symbol.Map.singleton module_symbol module_block_approximation)
+      (Acc.declared_symbols acc)
+  in
   let acc, body =
     List.fold_left
       (fun (acc, body) (symbol, static_const) ->
@@ -1508,6 +1531,18 @@ let close_program ~symbol_for_global ~big_endian ~module_ident
         |> Expr_with_acc.create_let)
       (acc, body) (Acc.declared_symbols acc)
   in
+  let used_closure_vars =
+    (* let vs = *)
+    Name_occurrences.closure_vars (Acc.free_names acc)
+    (*in Format.eprintf "%a\n" Var_within_closure.Set.print vs;
+     * vs *)
+  in
+  let all_code = Exported_code.add_code (Acc.code acc) Exported_code.empty in
+  let cmx =
+    Flambda_cmx.prepare_cmx_from_approx ~approxs:symbols_approximations
+      ~used_closure_vars all_code
+  in
   ( Flambda_unit.create ~return_continuation:return_cont ~exn_continuation ~body
-      ~module_symbol ~used_closure_vars:Unknown,
-    Exported_code.add_code (Acc.code acc) Exported_code.empty )
+      ~module_symbol ~used_closure_vars:(Known used_closure_vars),
+    all_code,
+    cmx )

@@ -147,10 +147,13 @@ let lambda_to_cmm ~ppf_dump:ppf ~prefixname ~filename ~module_ident
     ~module_block_size_in_words ~module_initializer =
   Misc.Color.setup (Flambda_features.colour ());
   let run () =
-    let raw_flambda, code =
+    let cmx_loader =
+      Flambda_cmx.create_loader ~get_global_info ~symbol_for_global
+    in
+    let raw_flambda, code, cmx =
       Profile.record_call "lambda_to_flambda" (fun () ->
           Lambda_to_flambda.lambda_to_flambda ~symbol_for_global
-            ~big_endian:Arch.big_endian ~module_ident
+            ~big_endian:Arch.big_endian ~cmx_loader ~module_ident
             ~module_block_size_in_words module_initializer)
     in
     Compiler_hooks.execute Raw_flambda2 raw_flambda;
@@ -159,9 +162,9 @@ let lambda_to_cmm ~ppf_dump:ppf ~prefixname ~filename ~module_ident
     then
       let output_prefix = prefixname ^ ".cps_conv" in
       Inlining_report.output_then_forget_decisions ~output_prefix);
-    let flambda, cmx, all_code =
+    let flambda, (cmx : Flambda2_cmx.Flambda_cmx_format.t option), all_code =
       if Flambda_features.classic_mode ()
-      then raw_flambda, None, code
+      then raw_flambda, cmx, code
       else
         let raw_flambda =
           if Flambda_features.Debug.permute_every_name ()
@@ -169,9 +172,6 @@ let lambda_to_cmm ~ppf_dump:ppf ~prefixname ~filename ~module_ident
           else raw_flambda
         in
         let round = 0 in
-        let cmx_loader =
-          Flambda_cmx.create_loader ~get_global_info ~symbol_for_global
-        in
         let { Simplify.unit = flambda; cmx; all_code } =
           Profile.record_call ~accumulate:true "simplify" (fun () ->
               Simplify.run ~cmx_loader ~round raw_flambda)
