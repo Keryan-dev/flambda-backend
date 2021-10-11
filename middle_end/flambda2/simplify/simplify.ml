@@ -29,46 +29,13 @@ type simplify_result =
     all_code : Exported_code.t
   }
 
-let predefined_exception_typing_env ~backend ~resolver ~get_imported_names
-    ~get_imported_code =
-  let module Backend = (val backend : Flambda_backend_intf.S) in
-  let comp_unit = Compilation_unit.get_current_exn () in
-  Compilation_unit.set_current (Compilation_unit.predefined_exception ());
-  let typing_env =
-    Symbol.Set.fold
-      (fun sym typing_env ->
-        TE.add_definition typing_env (Bound_name.symbol sym) K.value)
-      Backend.all_predefined_exception_symbols
-      (TE.create ~resolver ~get_imported_names ~get_imported_code)
-  in
-  Compilation_unit.set_current comp_unit;
-  typing_env
-
-let run ~backend ~round unit =
-  let module Backend = (val backend : Flambda_backend_intf.S) in
+let run ~backend ~cmx_loader ~round unit =
   let return_continuation = FU.return_continuation unit in
   let exn_continuation = FU.exn_continuation unit in
   let module_symbol = FU.module_symbol unit in
-  let imported_names = ref Name.Set.empty in
-  let imported_code = ref Exported_code.empty in
-  let imported_units = ref Compilation_unit.Map.empty in
-  let resolver comp_unit =
-    Flambda_cmx.load_cmx_file_contents backend comp_unit ~imported_names
-      ~imported_code ~imported_units
-  in
-  let get_imported_names () = !imported_names in
-  let get_imported_code () = !imported_code in
-  let predefined_exception_typing_env =
-    predefined_exception_typing_env ~backend ~resolver ~get_imported_names
-      ~get_imported_code
-  in
-  imported_units
-    := Compilation_unit.Map.add
-         (Compilation_unit.predefined_exception ())
-         (Some predefined_exception_typing_env) !imported_units;
-  imported_names
-    := Name.Set.union !imported_names
-         (TE.name_domain predefined_exception_typing_env);
+  let resolver = Flambda_cmx.load_cmx_file_contents cmx_loader in
+  let get_imported_names = Flambda_cmx.get_imported_names cmx_loader in
+  let get_imported_code = Flambda_cmx.get_imported_code cmx_loader in
   let denv =
     DE.create ~round ~backend ~resolver ~get_imported_names ~get_imported_code
       ~float_const_prop:(Flambda_features.float_const_prop ())
@@ -101,7 +68,7 @@ let run ~backend ~round unit =
   let return_cont_env = DA.continuation_uses_env (UA.creation_dacc uacc) in
   let all_code =
     Exported_code.merge (UA.all_code uacc)
-      (Exported_code.mark_as_imported !imported_code)
+      (Exported_code.mark_as_imported (get_imported_code ()))
   in
   let used_closure_vars =
     UA.name_occurrences uacc |> Name_occurrences.closure_vars

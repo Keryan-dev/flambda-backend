@@ -45,6 +45,8 @@ val create :
 
 val create_non_inlinable : code_id:Code_id.t -> t
 
+val create_inlinable : code_id:Code_id.t -> rec_info:Type_grammar.t -> t
+
 include
   Type_structure_intf.S
     with type t := t

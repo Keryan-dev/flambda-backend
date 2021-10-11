@@ -89,11 +89,6 @@ module IR = struct
 end
 
 module Env = struct
-  type value_approximation =
-    | Value_unknown
-    | Closure_approximation of Code_id.t * Flambda.Code.t option
-    | Block_approximation of value_approximation array
-
   type t =
     { variables : Variable.t Ident.Map.t;
       globals : Symbol.t Numeric_types.Int.Map.t;
@@ -102,7 +97,8 @@ module Env = struct
       current_unit_id : Ident.t;
       current_depth : Variable.t option;
       symbol_for_global' : Ident.t -> Symbol.t;
-      value_approximations : value_approximation Name.Map.t
+      value_approximations : Value_approximation.t Name.Map.t;
+      approximation_for_external_symbol : Symbol.t -> Value_approximation.t;
     }
 
   let backend t = t.backend
@@ -113,7 +109,27 @@ module Env = struct
 
   let symbol_for_global' t = t.symbol_for_global'
 
-  let empty ~backend =
+  let approximation_loader loader =
+    let externals = ref Symbol.Map.empty in
+    (fun symbol ->
+       match Symbol.Map.find symbol !externals with
+       | approx -> approx
+       | exception Not_found ->
+         let comp_unit = Symbol.compilation_unit symbol in
+         match Flambda_cmx.load_cmx_file_contents loader comp_unit with
+         | None ->
+           externals :=
+             Symbol.Map.add symbol Value_approximation.Value_unknown !externals;
+           Value_approximation.Value_unknown
+         | Some typing_env ->
+           (* Format.eprintf "Loaded %a" Compilation_unit.print comp_unit; *)
+           let approx =
+             Flambda_type.Typing_env.to_closure_conversion_approx typing_env symbol
+           in
+           externals := Symbol.Map.add symbol approx !externals;
+           approx)
+
+  let empty ~backend ~cmx_loader =
     let module Backend = (val backend : Flambda_backend_intf.S) in
     let compilation_unit = Compilation_unit.get_current_exn () in
     { variables = Ident.Map.empty;
@@ -123,6 +139,7 @@ module Env = struct
       current_unit_id = Compilation_unit.get_persistent_ident compilation_unit;
       current_depth = None;
       symbol_for_global' = Backend.symbol_for_global';
+      approximation_for_external_symbol = approximation_loader cmx_loader;
       value_approximations = Name.Map.empty
     }
 
@@ -134,6 +151,7 @@ module Env = struct
         current_unit_id;
         current_depth;
         symbol_for_global';
+        approximation_for_external_symbol;
         value_approximations
       } =
     let simples_to_substitute =
@@ -148,6 +166,7 @@ module Env = struct
       current_unit_id;
       current_depth;
       symbol_for_global';
+      approximation_for_external_symbol;
       value_approximations
     }
 
@@ -228,7 +247,7 @@ module Env = struct
     Ident.Map.find id t.simples_to_substitute
 
   let add_value_approximation t name approx =
-    if approx = Value_unknown
+    if Value_approximation.is_unknown approx
     then t
     else
       { t with
@@ -239,16 +258,19 @@ module Env = struct
     add_value_approximation t name (Closure_approximation (code_id, approx))
 
   let add_block_approximation t name approxs =
-    if Array.for_all (( = ) Value_unknown) approxs
+    if Array.for_all Value_approximation.is_unknown approxs
     then t
     else add_value_approximation t name (Block_approximation approxs)
 
   let find_value_approximation t simple =
     Simple.pattern_match simple
-      ~const:(fun _ -> Value_unknown)
+      ~const:(fun _ -> Value_approximation.Value_unknown)
       ~name:(fun name ~coercion:_ ->
         try Name.Map.find name t.value_approximations
-        with Not_found -> Value_unknown)
+        with Not_found ->
+          Name.pattern_match name
+            ~var:(fun _ -> Value_approximation.Value_unknown)
+            ~symbol:t.approximation_for_external_symbol)
 
   let add_approximation_alias t name alias =
     match find_value_approximation t (Simple.name name) with
@@ -258,7 +280,7 @@ end
 
 module Acc = struct
   type continuation_application =
-    | Trackable_arguments of Env.value_approximation list
+    | Trackable_arguments of Value_approximation.t list
     | Untrackable
 
   type t =
@@ -355,8 +377,8 @@ module Acc = struct
   let remove_continuation_from_free_names cont t =
     { t with
       free_names = Name_occurrences.remove_continuation t.free_names cont;
-      continuation_applications =
-        Continuation.Map.remove cont t.continuation_applications
+      (* continuation_applications =
+       *   Continuation.Map.remove cont t.continuation_applications *)
     }
 
   let remove_code_id_from_free_names code_id t =

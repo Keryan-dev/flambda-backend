@@ -679,6 +679,9 @@ let create_function_declaration ~code ~rec_info =
 let create_non_inlinable_function_declaration ~code_id =
   Function_declaration_type.create_non_inlinable ~code_id
 
+let create_inlinable_function_declaration ~code_id ~rec_info =
+  Function_declaration_type.create_inlinable ~code_id ~rec_info
+
 let exactly_this_closure closure_id ~all_function_decls_in_set:function_decls
     ~all_closures_in_set:closure_types
     ~all_closure_vars_in_set:closure_var_types =

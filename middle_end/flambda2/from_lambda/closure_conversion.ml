@@ -190,12 +190,14 @@ module Inlining = struct
       Not_inlinable
     | Block_approximation _ -> assert false
     | Closure_approximation (code_id, None) ->
+      (* Format.eprintf "No infos\n"; *)
       Inlining_report.record_decision ~dbg
         (At_call_site
            (Inlining_report.Non_inlinable_function
               { code_id = Code_id.export code_id }));
       Not_inlinable
     | Closure_approximation (code_id, Some code) ->
+      (* Format.eprintf "Some infos\n"; *)
       let fun_params_length =
         Code.params_arity code |> Flambda_arity.With_subkinds.to_arity
         |> Flambda_arity.length
@@ -745,25 +747,25 @@ let close_let acc env id user_visible defining_expr
           in
           Env.add_block_approximation body_env (Name.var var) approxs
         | Prim (Binary (Block_load _, block, field), _) -> begin
-          match Env.find_value_approximation body_env block with
-          | Value_unknown -> body_env
-          | Closure_approximation _ ->
-            Misc.fatal_errorf
-              "Closure approximation found when block approximation was \
-               expected in [Closure_conversion]: %a"
-              Named.print defining_expr
-          | Block_approximation approx ->
-            let approx : Env.value_approximation =
-              Simple.pattern_match field
-                ~const:(fun const ->
-                  match Reg_width_things.Const.descr const with
-                  | Tagged_immediate i ->
-                    approx.(Targetint_31_63.(Imm.to_int (to_targetint i)))
-                  | _ -> Env.Value_unknown)
-                ~name:(fun _ ~coercion:_ -> Env.Value_unknown)
-            in
-            Env.add_value_approximation body_env (Name.var var) approx
-        end
+            match Env.find_value_approximation body_env block with
+            | Value_unknown -> body_env
+            | Closure_approximation _ ->
+              Misc.fatal_errorf
+                "Closure approximation found when block approximation was \
+                 expected in [Closure_conversion]: %a"
+                Named.print defining_expr
+            | Block_approximation approx ->
+              let approx =
+                Simple.pattern_match field
+                  ~const:(fun const ->
+                      match Reg_width_things.Const.descr const with
+                      | Tagged_immediate i ->
+                        approx.(Targetint_31_63.(Imm.to_int (to_targetint i)))
+                      | _ -> Value_approximation.Value_unknown)
+                  ~name:(fun _ ~coercion:_ -> Value_approximation.Value_unknown)
+              in
+              Env.add_value_approximation body_env (Name.var var) approx
+          end
         | _ -> body_env
       in
       let acc, body = body acc body_env in
@@ -1355,10 +1357,10 @@ let close_let_rec acc env ~function_declarations
     named ~body
   |> Expr_with_acc.create_let
 
-let close_program ~backend ~module_ident ~module_block_size_in_words ~program
-    ~prog_return_cont ~exn_continuation =
+let close_program ~backend ~cmx_loader ~module_ident ~module_block_size_in_words
+    ~program ~prog_return_cont ~exn_continuation =
   let module Backend = (val backend : Flambda_backend_intf.S) in
-  let env = Env.empty ~backend in
+  let env = Env.empty ~backend ~cmx_loader in
   let module_symbol =
     Backend.symbol_for_global'
       (Ident.create_persistent (Ident.name module_ident))
@@ -1440,6 +1442,12 @@ let close_program ~backend ~module_ident ~module_block_size_in_words ~program
       ~handler_params:load_fields_handler_param ~handler:load_fields_body ~body
       ~is_exn_handler:false
   in
+  let module_block_approximation =
+    match Acc.continuation_known_arguments ~cont:prog_return_cont acc with
+    | Some [approx] -> approx
+    | Some l -> Format.eprintf "%a, approx len: %d\n" Continuation.print prog_return_cont (List.length l); assert false
+    | _ ->  Format.eprintf "%a, approx len: none\n" Continuation.print prog_return_cont; Value_approximation.Value_unknown
+  in
   let acc, body =
     Code_id.Map.fold
       (fun code_id code (acc, body) ->
@@ -1471,6 +1479,15 @@ let close_program ~backend ~module_ident ~module_block_size_in_words ~program
       in
       acc
   in
+  let symbols_approximations =
+    List.fold_left
+      (fun sa (symbol, _) ->
+         (* CR Keryan: for now only constants are lifted.
+            It will need refinement with thelifting of closed functions *)
+         Symbol.Map.add symbol Value_approximation.Value_unknown sa)
+      (Symbol.Map.singleton module_symbol module_block_approximation)
+      (Acc.declared_symbols acc)
+  in
   let acc, body =
     List.fold_left
       (fun (acc, body) (symbol, static_const) ->
@@ -1486,6 +1503,25 @@ let close_program ~backend ~module_ident ~module_block_size_in_words ~program
         |> Expr_with_acc.create_let)
       (acc, body) (Acc.declared_symbols acc)
   in
+  let used_closure_vars =
+    (* let vs = *)
+    Name_occurrences.closure_vars (Acc.free_names acc)
+    (*in Format.eprintf "%a\n" Var_within_closure.Set.print vs;
+     * vs *)
+  in
+  let all_code =
+    Exported_code.add_code (Acc.code acc) Exported_code.empty
+  in
+  let cmx =
+    let final_typing_env =
+      Flambda_type.Typing_env.Serializable.create_from_closure_conversion_approx
+        symbols_approximations
+    in
+    Flambda_cmx_format.create ~final_typing_env ~all_code
+      ~exported_offsets:(Exported_offsets.imported_offsets ())
+      ~used_closure_vars
+  in
   ( Flambda_unit.create ~return_continuation:return_cont ~exn_continuation ~body
-      ~module_symbol ~used_closure_vars:Unknown,
-    Exported_code.add_code (Acc.code acc) Exported_code.empty )
+      ~module_symbol ~used_closure_vars:(Known used_closure_vars),
+    all_code,
+    cmx)

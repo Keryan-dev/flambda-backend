@@ -75,10 +75,14 @@ let middle_end0 ppf ~prefixname ~backend ~filename ~module_ident
     ~module_block_size_in_words ~module_initializer =
   Misc.Color.setup (Flambda_features.colour ());
   Profile.record_call "flambda.0" (fun () ->
-      let flambda, code =
+      let cmx_loader = Flambda_cmx.create_loader backend in
+      let flambda, code, cmx =
+        try
         Profile.record_call "lambda_to_flambda" (fun () ->
-            Lambda_to_flambda.lambda_to_flambda ~backend ~module_ident
-              ~module_block_size_in_words module_initializer)
+            Lambda_to_flambda.lambda_to_flambda ~backend ~cmx_loader
+              ~module_ident ~module_block_size_in_words module_initializer)
+        with Misc.Fatal_error -> Inlining_report.output_then_forget_decisions ~output_prefix:"debug";
+          raise Misc.Fatal_error
       in
       print_rawflambda ppf flambda;
       (if Flambda_features.inlining_report ()
@@ -86,7 +90,7 @@ let middle_end0 ppf ~prefixname ~backend ~filename ~module_ident
         let output_prefix = prefixname ^ ".cps_conv" in
         Inlining_report.output_then_forget_decisions ~output_prefix);
       if Flambda_features.classic_mode ()
-      then { cmx = None; unit = flambda; all_code = code }
+      then { cmx = Some cmx; unit = flambda; all_code = code }
       else
         let flambda =
           if Flambda_features.Debug.permute_every_name ()
@@ -96,7 +100,7 @@ let middle_end0 ppf ~prefixname ~backend ~filename ~module_ident
         let round = 0 in
         let new_flambda =
           Profile.record_call ~accumulate:true "simplify" (fun () ->
-              Simplify.run ~backend ~round flambda)
+              Simplify.run ~backend ~cmx_loader ~round flambda)
         in
         (if Flambda_features.inlining_report ()
         then

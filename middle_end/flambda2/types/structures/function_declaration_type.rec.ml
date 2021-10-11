@@ -103,6 +103,9 @@ let create ~code ~rec_info =
   in
   t, inlining_decision
 
+let create_inlinable ~code_id ~rec_info : t =
+  Ok (Inlinable { code_id; rec_info; must_be_inlined = false })
+
 let create_non_inlinable ~code_id : t = Ok (Non_inlinable { code_id })
 
 let print_t0 ppf t0 =

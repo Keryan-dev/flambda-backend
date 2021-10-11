@@ -2,7 +2,7 @@
 (*                                                                        *)
 (*                                 OCaml                                  *)
 (*                                                                        *)
-(*                       Pierre Chambart, OCamlPro                        *)
+(*            Pierre Chambart and Vincent Laviron, OCamlPro               *)
 (*           Mark Shinwell and Leo White, Jane Street Europe              *)
 (*                                                                        *)
 (*   Copyright 2013--2020 OCamlPro SAS                                    *)
@@ -16,24 +16,11 @@
 
 [@@@ocaml.warning "+a-4-30-40-41-42"]
 
-(** Dumping and restoring of simplification environment information to and from
-    .cmx files. *)
+(** Approximations used for cross-module inlining in Closure_conversion *)
 
-type loader
+type t =
+  | Value_unknown
+  | Closure_approximation of Code_id.t * Flambda.Code.t option
+  | Block_approximation of t array
 
-val create_loader : (module Flambda_backend_intf.S) -> loader
-
-val get_imported_names : loader -> unit -> Name.Set.t
-
-val get_imported_code : loader -> unit -> Exported_code.t
-
-val load_cmx_file_contents :
-  loader -> Compilation_unit.t -> Flambda_type.Typing_env.t option
-
-val prepare_cmx_file_contents :
-  return_cont_env:Continuation_uses_env.t ->
-  return_continuation:Continuation.t ->
-  module_symbol:Symbol.t ->
-  used_closure_vars:Var_within_closure.Set.t ->
-  Exported_code.t ->
-  Flambda_cmx_format.t option
+val is_unknown : t -> bool

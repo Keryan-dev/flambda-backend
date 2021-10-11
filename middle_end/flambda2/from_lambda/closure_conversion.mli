@@ -66,9 +66,10 @@ val close_switch :
 
 val close_program :
   backend:(module Flambda_backend_intf.S) ->
+  cmx_loader:Flambda_cmx.loader ->
   module_ident:Ident.t ->
   module_block_size_in_words:int ->
   program:(Acc.t -> Env.t -> Acc.t * Expr_with_acc.t) ->
   prog_return_cont:Continuation.t ->
   exn_continuation:Continuation.t ->
-  Flambda_unit.t * Exported_code.t
+  Flambda_unit.t * Exported_code.t * Flambda_cmx_format.t

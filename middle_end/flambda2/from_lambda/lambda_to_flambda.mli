@@ -20,7 +20,8 @@
 
 val lambda_to_flambda :
   backend:(module Flambda_backend_intf.S) ->
+  cmx_loader:Flambda_cmx.loader ->
   module_ident:Ident.t ->
   module_block_size_in_words:int ->
   Lambda.lambda ->
-  Flambda_unit.t * Exported_code.t
+  Flambda_unit.t * Exported_code.t * Flambda_cmx_format.t

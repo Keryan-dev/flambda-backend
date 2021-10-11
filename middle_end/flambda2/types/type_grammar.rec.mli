@@ -208,6 +208,9 @@ val create_function_declaration :
 val create_non_inlinable_function_declaration :
   code_id:Code_id.t -> Function_declaration_type.t
 
+val create_inlinable_function_declaration :
+  code_id:Code_id.t -> rec_info:t -> Function_declaration_type.t
+
 val exactly_this_closure :
   Closure_id.t ->
   all_function_decls_in_set:Function_declaration_type.t Closure_id.Map.t ->

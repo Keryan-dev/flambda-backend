@@ -79,14 +79,11 @@ end
     values during closure conversion, and similarly for static exception
     identifiers. *)
 module Env : sig
-  type value_approximation =
-    | Value_unknown
-    | Closure_approximation of Code_id.t * Flambda.Code.t option
-    | Block_approximation of value_approximation array
-
   type t
 
-  val empty : backend:(module Flambda_backend_intf.S) -> t
+  val empty :
+    backend:(module Flambda_backend_intf.S)
+    -> cmx_loader:Flambda_cmx.loader -> t
 
   val clear_local_bindings : t -> t
 
@@ -121,16 +118,16 @@ module Env : sig
 
   val find_simple_to_substitute_exn : t -> Ident.t -> Simple.t
 
-  val add_value_approximation : t -> Name.t -> value_approximation -> t
+  val add_value_approximation : t -> Name.t -> Value_approximation.t -> t
 
   val add_closure_approximation :
     t -> Name.t -> Code_id.t * Flambda.Code.t option -> t
 
-  val add_block_approximation : t -> Name.t -> value_approximation array -> t
+  val add_block_approximation : t -> Name.t -> Value_approximation.t array -> t
 
   val add_approximation_alias : t -> Name.t -> Name.t -> t
 
-  val find_value_approximation : t -> Simple.t -> value_approximation
+  val find_value_approximation : t -> Simple.t -> Value_approximation.t
 
   val current_depth : t -> Variable.t option
 
@@ -141,6 +138,7 @@ module Env : sig
   val current_unit_id : t -> Ident.t
 
   val symbol_for_global' : t -> Ident.t -> Symbol.t
+
 end
 
 (** Used to pipe some data through closure conversion *)
@@ -176,7 +174,7 @@ module Acc : sig
   val remove_continuation_from_free_names : Continuation.t -> t -> t
 
   val continuation_known_arguments :
-    cont:Continuation.t -> t -> Env.value_approximation list option
+    cont:Continuation.t -> t -> Value_approximation.t list option
 
   val with_free_names : Name_occurrences.t -> t -> t
 
@@ -286,7 +284,7 @@ module Apply_cont_with_acc : sig
   val create :
     Acc.t ->
     ?trap_action:Trap_action.t ->
-    ?args_approx:Env.value_approximation list ->
+    ?args_approx:Value_approximation.t list ->
     Continuation.t ->
     args:Simple.t list ->
     dbg:Debuginfo.t ->

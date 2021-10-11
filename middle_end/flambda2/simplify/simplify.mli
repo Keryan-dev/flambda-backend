@@ -30,6 +30,7 @@ type simplify_result = private
 
 val run :
   backend:(module Flambda_backend_intf.S) ->
+  cmx_loader:Flambda_cmx.loader ->
   round:int ->
   Flambda_unit.t ->
   simplify_result
