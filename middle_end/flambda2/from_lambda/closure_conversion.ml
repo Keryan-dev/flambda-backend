@@ -1371,13 +1371,13 @@ let close_apply acc env (apply : IR.apply) : Acc.t * Expr_with_acc.t =
   | None -> close_exact_or_unknown_apply acc env apply None
   | Some (arity, is_tupled) -> (
     let args, missing_args, remaining_args =
-      let rec split l1 l2 =
-        match l1, l2 with
-        | _, [] -> [], [], l1
-        | [], _ -> [], l2, []
-        | e1 :: l1, _ :: l2 ->
-          let args, missing, remains = split l1 l2 in
-          e1 :: args, missing, remains
+      let rec split args arity =
+        match args, arity with
+        | _, [] -> [], [], args
+        | [], _ -> [], arity, []
+        | arg :: args, _ :: arity ->
+          let args, missing, remains = split args arity in
+          arg :: args, missing, remains
       in
       let arity =
         if is_tupled
@@ -1415,7 +1415,7 @@ let close_apply acc env (apply : IR.apply) : Acc.t * Expr_with_acc.t =
         in
         let return_continuation = Continuation.create ~sort:Return () in
         let exn_continuation =
-          { apply.exn_continuation with exn_handler = Continuation.create () }
+          IR.{ exn_handler = Continuation.create (); extra_args = [] }
         in
         let all_args = args @ List.map (fun (a, _) -> IR.Var a) params in
         let fbody acc env =
@@ -1466,17 +1466,18 @@ let close_apply acc env (apply : IR.apply) : Acc.t * Expr_with_acc.t =
     | args ->
       let acc, args = find_simples acc env args in
       let wrapper_cont = Continuation.create () in
-      let _continuation = Apply.Result_continuation.Return wrapper_cont in
-      let acc, exn_continuation =
-        close_exn_continuation acc env apply.exn_continuation
-      in
       let returned_func = Variable.create "func" in
-      let call_kind = Call_kind.indirect_function_call_unknown_arity () in
-      let inlined = LC.inlined_attribute apply.inlined in
-      let probe_name =
-        match apply.probe with None -> None | Some { name } -> Some name
-      in
       let handler acc =
+        let acc, exn_continuation =
+          close_exn_continuation acc env apply.exn_continuation
+        in
+        let call_kind = Call_kind.indirect_function_call_unknown_arity () in
+        let inlined = LC.inlined_attribute apply.inlined in
+        (* Keeping the attributes is useless in classic mode but matches the
+           behaviour of simplify, and this split is done either way *)
+        let probe_name =
+          match apply.probe with None -> None | Some { name } -> Some name
+        in
         let over_apply =
           Apply.create ~callee:(Simple.var returned_func)
             ~continuation:(Return apply.continuation) exn_continuation ~args
