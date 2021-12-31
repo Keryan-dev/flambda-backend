@@ -20,9 +20,10 @@
 
 type 'code t =
   | Value_unknown
+  | Value_symbol of Symbol.t
   | Closure_approximation of Code_id.t * Closure_id.t * 'code
   | Block_approximation of 'code t array
 
 let is_unknown = function
   | Value_unknown -> true
-  | Closure_approximation _ | Block_approximation _ -> false
+  | Value_symbol _ | Closure_approximation _ | Block_approximation _ -> false
