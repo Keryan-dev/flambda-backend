@@ -619,50 +619,6 @@ let close_primitive acc env ~let_bound_var named (prim : Lambda.primitive) ~args
     in
     (* Since raising of an exception doesn't terminate, we don't call [k]. *)
     Expr_with_acc.create_apply_cont acc apply_cont
-  | (Pmakeblock _ | Pmakefloatblock _ | Pmakearray _), [] ->
-    (* Special case for liftable empty block or array *)
-    let acc, sym =
-      match prim with
-      | Pmakeblock (tag, _, _) ->
-        if tag <> 0
-        then
-          (* There should not be any way to reach this from Ocaml code. *)
-          Misc.fatal_error
-            "Non-zero tag on empty block allocation in [Closure_conversion]"
-        else
-          register_const0 acc
-            (Static_const.Block (Tag.Scannable.zero, Immutable, []))
-            "empty_block"
-      | Pmakefloatblock _ ->
-        Misc.fatal_error "Unexpected empty float block in [Closure_conversion]"
-      | Pmakearray (_, _) ->
-        register_const0 acc Static_const.Empty_array "empty_array"
-      | Pidentity | Pbytes_to_string | Pbytes_of_string | Pignore | Prevapply
-      | Pdirapply | Pgetglobal _ | Psetglobal _ | Pfield _ | Pfield_computed _
-      | Psetfield _ | Psetfield_computed _ | Pfloatfield _ | Psetfloatfield _
-      | Pduprecord _ | Pccall _ | Praise _ | Psequand | Psequor | Pnot | Pnegint
-      | Paddint | Psubint | Pmulint | Pdivint _ | Pmodint _ | Pandint | Porint
-      | Pxorint | Plslint | Plsrint | Pasrint | Pintcomp _ | Pcompare_ints
-      | Pcompare_floats | Pcompare_bints _ | Poffsetint _ | Poffsetref _
-      | Pintoffloat | Pfloatofint | Pnegfloat | Pabsfloat | Paddfloat
-      | Psubfloat | Pmulfloat | Pdivfloat | Pfloatcomp _ | Pstringlength
-      | Pstringrefu | Pstringrefs | Pbyteslength | Pbytesrefu | Pbytessetu
-      | Pbytesrefs | Pbytessets | Pduparray _ | Parraylength _ | Parrayrefu _
-      | Parraysetu _ | Parrayrefs _ | Parraysets _ | Pisint | Pisout
-      | Pbintofint _ | Pintofbint _ | Pcvtbint _ | Pnegbint _ | Paddbint _
-      | Psubbint _ | Pmulbint _ | Pdivbint _ | Pmodbint _ | Pandbint _
-      | Porbint _ | Pxorbint _ | Plslbint _ | Plsrbint _ | Pasrbint _
-      | Pbintcomp _ | Pbigarrayref _ | Pbigarrayset _ | Pbigarraydim _
-      | Pstring_load_16 _ | Pstring_load_32 _ | Pstring_load_64 _
-      | Pbytes_load_16 _ | Pbytes_load_32 _ | Pbytes_load_64 _ | Pbytes_set_16 _
-      | Pbytes_set_32 _ | Pbytes_set_64 _ | Pbigstring_load_16 _
-      | Pbigstring_load_32 _ | Pbigstring_load_64 _ | Pbigstring_set_16 _
-      | Pbigstring_set_32 _ | Pbigstring_set_64 _ | Pctconst _ | Pbswap16
-      | Pbbswap _ | Pint_as_pointer | Popaque | Pprobe_is_enabled _ ->
-        (* Inconsistent with outer match *)
-        assert false
-    in
-    k acc (Some (Named.create_simple (Simple.symbol sym)))
   | prim, args ->
     Lambda_to_flambda_primitives.convert_and_bind acc exn_continuation
       ~big_endian:(Env.big_endian env)
@@ -711,23 +667,57 @@ let close_let acc env id user_visible defining_expr
   let body_env, var = Env.add_var_like env id user_visible in
   let cont acc (defining_expr : Named.t option) =
     match defining_expr with
+    | None -> body acc body_env
     | Some (Simple simple) ->
       let body_env = Env.add_simple_to_substitute env id simple in
       body acc body_env
-    | None -> body acc body_env
     | Some defining_expr -> (
-      (* CR pchambart: Not tail ! *)
-      let body_env =
+      let valid_expr =
         match defining_expr with
-        | Prim (Variadic (Make_block (_, Immutable), fields), _) ->
-          let approxs =
-            List.map (Env.find_value_approximation body_env) fields
-            |> Array.of_list
+        | Prim (Variadic (Make_block _, []), _) ->
+          let const = Static_const.Block (Tag.Scannable.zero, Immutable, []) in
+          Some (Env.Value_unknown, Some (const, "empty_block"))
+        | Prim (Variadic (Make_array _, []), _) ->
+          let const = Static_const.Empty_array in
+          Some (Env.Value_unknown, Some (const, "empty_array"))
+        | Prim (Variadic (Make_block (Values (tag, _), Immutable), fields), _)
+          -> (
+          let all_fields_static =
+            List.fold_right
+              (fun field acc ->
+                match acc with
+                | None -> None
+                | Some fields ->
+                  Simple.pattern_match field
+                    ~name:(fun name ~coercion:_ ->
+                      match Name.must_be_symbol_opt name with
+                      | None -> None
+                      | Some sym ->
+                        Some (Field_of_static_block.Symbol sym :: fields))
+                    ~const:(fun const ->
+                      match Reg_width_const.descr const with
+                      | Tagged_immediate num ->
+                        Some
+                          (Field_of_static_block.Tagged_immediate num :: fields)
+                      | Naked_immediate _ | Naked_float _ | Naked_int32 _
+                      | Naked_int64 _ | Naked_nativeint _ ->
+                        Misc.fatal_error
+                          "Unexpected naked constant in [Closure_conversion]"))
+              fields (Some [])
           in
-          Some (Env.add_block_approximation body_env (Name.var var) approxs)
+          let approx =
+            Env.Block_approximation
+              (List.map (Env.find_value_approximation body_env) fields
+              |> Array.of_list)
+          in
+          match all_fields_static with
+          | Some static_fields ->
+            let const = Static_const.Block (tag, Immutable, static_fields) in
+            Some (approx, Some (const, "static_block"))
+          | None -> Some (approx, None))
         | Prim (Binary (Block_load _, block, field), _) -> begin
           match Env.find_value_approximation body_env block with
-          | Value_unknown -> Some body_env
+          | Value_unknown -> Some (Env.Value_unknown, None)
           | Closure_approximation _ ->
             if Flambda_features.check_invariants ()
             then
@@ -756,19 +746,34 @@ let close_let acc env id user_visible defining_expr
                   | _ -> Env.Value_unknown)
                 ~name:(fun _ ~coercion:_ -> Env.Value_unknown)
             in
-            Some (Env.add_value_approximation body_env (Name.var var) approx)
+            Some (approx, None)
         end
-        | _ -> Some body_env
+        | _ -> Some (Env.Value_unknown, None)
       in
-      match body_env with
-      | Some body_env ->
-        let acc, body = body acc body_env in
-        let var = VB.create var Name_mode.normal in
-        Let_with_acc.create acc
-          (Bound_pattern.singleton var)
-          defining_expr ~body
-        |> Expr_with_acc.create_let
-      | None -> acc, Expr.create_invalid ~semantics:Treat_as_unreachable ())
+      match valid_expr with
+      | None -> acc, Expr.create_invalid ~semantics:Treat_as_unreachable ()
+      | Some (approx, liftable_const) -> (
+        match liftable_const with
+        | Some (static_const, name) ->
+          let acc, sym = register_const0 acc static_const name in
+          let body_env =
+            Env.add_value_approximation body_env (Name.symbol sym) approx
+          in
+          let body_env =
+            Env.add_simple_to_substitute body_env id (Simple.symbol sym)
+          in
+          body acc body_env
+        | None ->
+          (* CR pchambart: Not tail ! *)
+          let body_env =
+            Env.add_value_approximation body_env (Name.var var) approx
+          in
+          let acc, body = body acc body_env in
+          let var = VB.create var Name_mode.normal in
+          Let_with_acc.create acc
+            (Bound_pattern.singleton var)
+            defining_expr ~body
+          |> Expr_with_acc.create_let))
   in
   close_named acc env ~let_bound_var:var defining_expr cont
 
