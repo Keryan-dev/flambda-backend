@@ -866,8 +866,8 @@ and let_expr_bind ?extra env v ~num_normal_occurrences_of_bound_vars cmm_expr
     effs =
   match decide_inline_let effs ~num_normal_occurrences_of_bound_vars v with
   | Skip -> env
-  | Inline -> Env.bind_variable env v ?extra effs true cmm_expr
-  | Regular -> Env.bind_variable env v ?extra effs false cmm_expr
+  | Inline -> Env.bind_variable env v ?extra effs Env.Inline_once cmm_expr
+  | Regular -> Env.bind_variable env v ?extra effs Env.Do_not_inline cmm_expr
 
 and bind_simple (env, res) v ~num_normal_occurrences_of_bound_vars s =
   let cmm_expr, env, effs = simple env s in
@@ -1472,16 +1472,14 @@ and let_static_set_of_closures env res body value_slots s layout =
   end;
   (* update the result with the new static data *)
   let res = R.archive_data (R.set_data res static_data) in
-  (* Bind the variables to the symbols for function slots. CR gbury: inline the
-     variables (require to extend to_cmm_enc to inline pure variables more than
-     once). *)
+  (* Bind the variables to the symbols for function slots. *)
   let env =
     List.fold_left2
       (fun acc cid v ->
         let v = Bound_var.var v in
         let sym = symbol (Function_slot.Map.find cid closure_symbols) in
         let sym_cmm = C.symbol sym in
-        Env.bind_variable acc v Ece.pure false sym_cmm)
+        Env.bind_variable acc v Ece.pure Env.Duplicate sym_cmm)
       env cids value_slots
   in
   (* go on in the body *)
@@ -1512,7 +1510,7 @@ and let_dynamic_set_of_closures env res body value_slots s
   let csoc = C.make_closure_block closure_alloc_mode l in
   (* Create a variable to hold the set of closure *)
   let soc_var = Variable.create "*set_of_closures*" in
-  let env = Env.bind_variable env soc_var effs false csoc in
+  let env = Env.bind_variable env soc_var effs Env.Do_not_inline csoc in
   (* Get from the env the cmm variable that was created and bound to the
      compiled set of closures. *)
   let soc_cmm_var, env, peff = Env.inline_variable env soc_var in

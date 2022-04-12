@@ -38,6 +38,14 @@ type kind =
     coeffects. *)
 val classify : Effects_and_coeffects.t -> kind
 
+(** Inlining decision of bound expressions *)
+type inline =
+  | Do_not_inline
+  | Inline_once
+  | Duplicate
+      (** Akin to systematic substitutions, it should not be used for
+          (co)effectful expressions *)
+
 (** {1 Translation environment} *)
 
 (** Environment for flambda to cmm translation *)
@@ -107,7 +115,7 @@ val bind_variable :
   Variable.t ->
   ?extra:extra_info ->
   Effects_and_coeffects.t ->
-  bool ->
+  inline ->
   Cmm.expression ->
   t
 

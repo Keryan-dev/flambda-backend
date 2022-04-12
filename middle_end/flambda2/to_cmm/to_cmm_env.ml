@@ -77,9 +77,14 @@ type kind =
   | Effect
   | Coeffect
 
+type inline =
+  | Do_not_inline
+  | Inline_once
+  | Duplicate
+
 type binding =
   { order : int;
-    inline : bool;
+    inline : inline;
     effs : Effects_and_coeffects.t;
     cmm_var : Backend_var.With_provenance.t;
     cmm_expr : Cmm.expression
@@ -410,13 +415,14 @@ let bind_coeff env var b =
 
 let bind_variable env var ?extra effs inline cmm_expr =
   let env, b = mk_binding ?extra env inline effs var cmm_expr in
-  if inline && is_inlinable_box effs ~extra
-  then bind_inlined_box env var b
-  else
+  match inline with
+  | (Inline_once | Duplicate) when is_inlinable_box effs ~extra ->
+    bind_inlined_box env var b
+  | _ -> (
     match classify effs with
     | Pure -> bind_pure env var b
     | Effect -> bind_eff env var b
-    | Coeffect -> bind_coeff env var b
+    | Coeffect -> bind_coeff env var b)
 (* Variable lookup (for potential inlining) *)
 
 let inline_res env b = b.cmm_expr, env, b.effs
@@ -432,28 +438,31 @@ let inline_not_found env v =
   | e -> e, env, Effects_and_coeffects.pure
 
 let inline_found_pure env var b =
-  if b.inline
-  then
+  match b.inline with
+  | Inline_once ->
     let pures = Variable.Map.remove var env.pures in
     let env = { env with pures } in
     inline_res env b
-  else inline_not env b
+  | Duplicate -> inline_res env b
+  | Do_not_inline -> inline_not env b
 
 let inline_found_eff env var v b r =
   if not (Variable.equal var v)
   then inline_not_found env var
-  else if b.inline
-  then
-    let env = { env with stages = r } in
-    inline_res env b
-  else inline_not env b
+  else
+    match b.inline with
+    | Inline_once ->
+      let env = { env with stages = r } in
+      inline_res env b
+    | Do_not_inline -> inline_not env b
+    | Duplicate -> Misc.fatal_error "Effectful binding should not be duplicated"
 
 let inline_found_coeff env var m r =
   match Variable.Map.find var m with
   | exception Not_found -> inline_not_found env var
-  | b ->
-    if b.inline
-    then
+  | b -> (
+    match b.inline with
+    | Inline_once ->
       let m' = Variable.Map.remove var m in
       let env =
         if Variable.Map.is_empty m'
@@ -461,7 +470,10 @@ let inline_found_coeff env var m r =
         else { env with stages = Coeff m' :: r }
       in
       inline_res env b
-    else inline_not env b
+    | Do_not_inline -> inline_not env b
+    | Duplicate ->
+      (* CR keryan: for now, not sure if it's safe to relax *)
+      Misc.fatal_error "Co-effectful binding should not be duplicated")
 
 let inline_variable env var =
   match Variable.Map.find var env.pures with
@@ -510,7 +522,13 @@ let flush_delayed_lets ?(entering_loop = false) env =
   let pures_to_keep, pures_to_flush =
     if entering_loop
     then Variable.Map.empty, env.pures
-    else Variable.Map.partition (fun _ binding -> binding.inline) env.pures
+    else
+      Variable.Map.partition
+        (fun _ binding ->
+          match binding.inline with
+          | Do_not_inline -> false
+          | Inline_once | Duplicate -> true)
+        env.pures
   in
   let wrap e = wrap_aux pures_to_flush env.stages e in
   wrap, { env with stages = []; pures = pures_to_keep }
