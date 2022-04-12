@@ -44,7 +44,8 @@ val classify_by_effects_and_coeffects :
 type let_binding_classification = private
   | Regular  (** Proceed as normal, do not inline the defining expression. *)
   | Drop_defining_expr  (** The defining expression may be deleted. *)
-  | May_inline  (** The defining expression may be inlined at the use site. *)
+  | May_inline_once  (** The defining expression may be inlined at the use site. *)
+  | Inline_and_duplicate  (** The defining expression must be inlined at all use sites. *)
 
 val classify_let_binding :
   Variable.t ->

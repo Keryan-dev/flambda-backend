@@ -2728,3 +2728,5 @@
    (backend/debug/dwarf/dwarf_ocaml/.dwarf_ocaml.objs/native/dwarf_ocaml__Dwarf_compilation_unit.cmx as compiler-libs/dwarf_ocaml__Dwarf_compilation_unit.cmx)
    (backend/debug/dwarf/dwarf_ocaml/.dwarf_ocaml.objs/native/dwarf_ocaml__Dwarf_state.cmx as compiler-libs/dwarf_ocaml__Dwarf_state.cmx)
  ))
+
+(dirs :standard \ worktree* _opam comby decompress.1.4.2)

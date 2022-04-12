@@ -153,10 +153,11 @@ let bind_simple ~dbg env v ~num_normal_occurrences_of_bound_vars s =
   let defining_expr, env, effects_and_coeffects_of_defining_expr =
     C.simple ~dbg env s
   in
-  Env.bind_variable env v
-    ~num_normal_occurrences_of_bound_vars:
-      (Known num_normal_occurrences_of_bound_vars)
+  Env.bind_let_variable env v
     ~effects_and_coeffects_of_defining_expr ~defining_expr
+    ~inline:(To_cmm_effects.classify_let_binding v
+               ~num_normal_occurrences_of_bound_vars
+               ~effects_and_coeffects_of_defining_expr)
 
 (* Helpers for the translation of [Apply] expressions. *)
 
@@ -269,6 +270,9 @@ let wrap_call_exn ~dbg env e call k_exn =
   let extra_args = Exn_continuation.extra_args k_exn in
   if List.compare_lengths extra_args mut_vars = 0
   then
+    (* Note wrt evaluation order: this is correct for the same reason as
+       `To_cmm_shared.simple_list`, namely the first simple translated (and
+       potentially inlined/substituted) is evaluted last. *)
     let aux (call, env) (arg, _k) v =
       let arg, env, _ = C.simple ~dbg env arg in
       C.sequence (C.assign v arg) call, env
@@ -389,16 +393,25 @@ and let_expr env res let_expr =
           expr env res body
         | Singleton v, Prim (p, dbg) ->
           let v = Bound_var.var v in
+          let effects_and_coeffects_of_defining_expr =
+            Flambda_primitive.effects_and_coeffects p
+          in
+          let inline =
+            To_cmm_effects.classify_let_binding v
+              ~num_normal_occurrences_of_bound_vars
+              ~effects_and_coeffects_of_defining_expr
+          in
+          (* We could try and avoid translating a primitive when we know
+             we're going to drop it, but it's not clear it's
+             useful/important. *)
           let defining_expr, extra, env, res, effs =
-            To_cmm_primitive.prim env res dbg p
+            To_cmm_primitive.prim ~inline env res dbg p
           in
           let effects_and_coeffects_of_defining_expr =
-            Ece.join effs (Flambda_primitive.effects_and_coeffects p)
+            Ece.join effs effects_and_coeffects_of_defining_expr
           in
           let env =
-            Env.bind_variable ?extra env v
-              ~num_normal_occurrences_of_bound_vars:
-                (Known num_normal_occurrences_of_bound_vars)
+            Env.bind_let_variable ?extra env v ~inline
               ~effects_and_coeffects_of_defining_expr ~defining_expr
           in
           expr env res body
@@ -609,19 +622,21 @@ and apply_expr env res e =
           Variable.Map.singleton var Num_occurrences.Zero
         in
         let env =
-          Env.bind_variable env var
-            ~num_normal_occurrences_of_bound_vars:
-              (Known num_normal_occurrences_of_bound_vars)
+          Env.bind_let_variable env var
             ~effects_and_coeffects_of_defining_expr:effs ~defining_expr:call
+            ~inline:(To_cmm_effects.classify_let_binding var
+                       ~num_normal_occurrences_of_bound_vars
+                       ~effects_and_coeffects_of_defining_expr:effs)
         in
         expr env res body
       | [param] ->
         let var = Bound_parameter.var param in
         let env =
-          Env.bind_variable env var
-            ~num_normal_occurrences_of_bound_vars:
-              (Known handler_params_occurrences)
+          Env.bind_let_variable env var
             ~effects_and_coeffects_of_defining_expr:effs ~defining_expr:call
+            ~inline:(To_cmm_effects.classify_let_binding var
+                       ~num_normal_occurrences_of_bound_vars:handler_params_occurrences
+                       ~effects_and_coeffects_of_defining_expr:effs)
         in
         expr env res body
       | _ :: _ -> unsupported ())
