@@ -714,13 +714,14 @@ let cont_is_known_to_have_exactly_one_occurrence k (num : _ Or_unknown.t) =
 
 type inlining_decision =
   | Skip (* no use, the bound variable can be skipped/ignored *)
-  | Inline (* the variable is used once, we can try and inline its use *)
+  | Inline_once (* the variable is used once, we can try and inline its use *)
+  | Duplicate (* the variable is used more than once but is safe to duplicate *)
   | Regular
 (* the variable is used multiple times, do not try and inline it. *)
 
 let decide_inline_let effs
     ~(num_normal_occurrences_of_bound_vars : Num_occurrences.t Variable.Map.t)
-    var =
+    ~may_duplicate var =
   match Variable.Map.find var num_normal_occurrences_of_bound_vars with
   | exception Not_found -> Regular
   | Zero -> begin
@@ -755,14 +756,17 @@ let decide_inline_let effs
        Deep expressions involving arbitrary effects are less common, so inlining
        for these expressions is controlled by the global [inline_effects_in_cmm]
        setting. *)
-    | Only_generative_effects _, _ -> Inline
+    | Only_generative_effects _, _ -> Inline_once
     | Arbitrary_effects, _ ->
       if Flambda_features.Expert.inline_effects_in_cmm ()
-      then Inline
+      then Inline_once
       else Regular
-    | No_effects, _ -> Inline
+    | No_effects, _ -> Inline_once
   end
-  | More_than_one -> Regular
+  | More_than_one -> (
+    match Env.classify effs, may_duplicate with
+    | Pure, true -> Duplicate
+    | _, _ -> Regular)
 
 (* Helpers for translating functions *)
 
@@ -862,16 +866,22 @@ and let_set_of_closures env res body value_slots
       ~num_normal_occurrences_of_bound_vars s layout
       ~closure_alloc_mode:(Set_of_closures.alloc_mode s)
 
-and let_expr_bind ?extra env v ~num_normal_occurrences_of_bound_vars cmm_expr
-    effs =
-  match decide_inline_let effs ~num_normal_occurrences_of_bound_vars v with
+and let_expr_bind ?extra env v ~num_normal_occurrences_of_bound_vars
+    ~may_duplicate cmm_expr effs =
+  match
+    decide_inline_let effs ~num_normal_occurrences_of_bound_vars ~may_duplicate
+      v
+  with
   | Skip -> env
-  | Inline -> Env.bind_variable env v ?extra effs Env.Inline_once cmm_expr
+  | Inline_once -> Env.bind_variable env v ?extra effs Env.Inline_once cmm_expr
+  | Duplicate -> Env.bind_variable env v ?extra effs Env.Duplicate cmm_expr
   | Regular -> Env.bind_variable env v ?extra effs Env.Do_not_inline cmm_expr
 
 and bind_simple (env, res) v ~num_normal_occurrences_of_bound_vars s =
   let cmm_expr, env, effs = simple env s in
-  let_expr_bind env v ~num_normal_occurrences_of_bound_vars cmm_expr effs, res
+  ( let_expr_bind env v ~num_normal_occurrences_of_bound_vars
+      ~may_duplicate:true cmm_expr effs,
+    res )
 
 and let_expr_simple body env res v ~num_normal_occurrences_of_bound_vars s =
   let v = Bound_var.var v in
@@ -884,9 +894,12 @@ and let_expr_prim body env res v ~num_normal_occurrences_of_bound_vars p dbg =
   let v = Bound_var.var v in
   let cmm_expr, extra, env, res, effs = prim env res dbg p in
   let effs = Ece.join effs (Flambda_primitive.effects_and_coeffects p) in
+  let may_duplicate =
+    match extra with Some Box -> true | None | Some (Untag _) -> false
+  in
   let env =
-    let_expr_bind ?extra env v ~num_normal_occurrences_of_bound_vars cmm_expr
-      effs
+    let_expr_bind ?extra env v ~num_normal_occurrences_of_bound_vars
+      ~may_duplicate cmm_expr effs
   in
   expr env res body
 
@@ -1184,7 +1197,8 @@ and wrap_cont env res effs call e =
           Variable.Map.singleton var Num_occurrences.Zero
         in
         let env =
-          let_expr_bind env var ~num_normal_occurrences_of_bound_vars call effs
+          let_expr_bind env var ~num_normal_occurrences_of_bound_vars
+            ~may_duplicate:false call effs
         in
         expr env res body
       | [param] ->
@@ -1192,7 +1206,7 @@ and wrap_cont env res effs call e =
         let env =
           let_expr_bind env var
             ~num_normal_occurrences_of_bound_vars:handler_params_occurrences
-            call effs
+            ~may_duplicate:false call effs
         in
         expr env res body
       | _ :: _ -> unsupported ())
@@ -1523,7 +1537,8 @@ and let_dynamic_set_of_closures env res body value_slots s
         | None -> acc
         | Some (e, effs) ->
           let v = Bound_var.var v in
-          let_expr_bind acc v ~num_normal_occurrences_of_bound_vars e effs)
+          let_expr_bind acc v ~num_normal_occurrences_of_bound_vars
+            ~may_duplicate:false e effs)
       env
       (Function_slot.Lmap.keys decls)
       value_slots
