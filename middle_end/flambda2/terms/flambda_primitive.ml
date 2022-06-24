@@ -931,15 +931,9 @@ let effects_and_coeffects_of_unary_primitive p =
         Placement.Strict )
     | Mutable ->
       ( Effects.Only_generative_effects destination_mutability,
-<<<<<<< HEAD
-        Coeffects.Has_coeffects ))
-  | Is_int -> Effects.No_effects, Coeffects.No_coeffects
-=======
         Coeffects.Has_coeffects,
-        Placement.Strict )
-  end
+        Placement.Strict ))
   | Is_int -> Effects.No_effects, Coeffects.No_coeffects, Placement.Strict
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
   | Get_tag ->
     (* [Obj.truncate] has now been removed. *)
     Effects.No_effects, Coeffects.No_coeffects, Placement.Strict

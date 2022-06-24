@@ -58,42 +58,15 @@ let classify_let_binding var
        impossible then the expressions will be bound at some safe place
        instead).
 
-<<<<<<< HEAD
        Whether inlining of _effectful_ expressions _actually occurs_ depends on
        the context. Currently this is very restricted, see comments in
        [To_cmm_primitive]. *)
-    May_inline
-  | More_than_one -> Regular
-=======
-       So the decision here is about readability of the generated Cmm code
-       (effectful expressions as arguments to other primitives make it hard to
-       follow the order of evaluation) and locality (for deeply nested
-       expressions, binding the sub-expressions outside can keep them alive for
-       longer than strictly necessary).
-
-       The current choice of always inlining pure expressions and expressions
-       with only generative effects is guided by the relatively common case of
-       initialisation of huge static structures (including arrays). Without
-       inlining, all intermediate results would be live for long periods of time
-       and the default register allocator would have trouble dealing with that
-       (it's quadratic in the number of registers live at the same time).
-
-       Deep expressions involving arbitrary effects are less common, so inlining
-       for these expressions is controlled by the global [inline_effects_in_cmm]
-       setting. *)
-    | Only_generative_effects _, _, _ -> May_inline_once
-    | Arbitrary_effects, _, _ ->
-      if Flambda_features.Expert.inline_effects_in_cmm ()
-      then May_inline_once
-      else Regular
-    | No_effects, _, _ -> May_inline_once
-  end
+    May_inline_once
   | More_than_one -> begin
     match effects_and_coeffects_of_defining_expr with
     | _, _, Delay -> Inline_and_duplicate
     | _, _, Strict -> Regular
   end
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
 
 type continuation_handler_classification =
   | Regular
