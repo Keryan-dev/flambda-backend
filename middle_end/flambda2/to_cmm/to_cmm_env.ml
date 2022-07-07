@@ -230,22 +230,15 @@ let get_exn_extra_args env k =
 
 (* Variable binding (for potential inlining). Also see [To_cmm_effects]. *)
 
-(*
-let is_inlinable_box effs ~extra =
-  (* [effs] is the effects and coeffects of some primitive operation, arising
-     either from the primitive itself or its arguments. If this is a boxing
-     operation (as indicated by [extra]) then we want to inline the box. However
-     this involves moving the arguments, so they must be pure (or at most have
-     generative effects, with no coeffects). *)
-  match (effs : Ece.t), (extra : extra_info option) with
-  | ((No_effects | Only_generative_effects _), No_coeffects), Some Boxed_number
-    ->
-    true
-  | ( ( (No_effects | Only_generative_effects _ | Arbitrary_effects),
-        (No_coeffects | Has_coeffects) ),
-      (None | Some Boxed_number | Some (Untag _)) ) ->
-    false
-*)
+(* let is_inlinable_box effs ~extra = (* [effs] is the effects and coeffects of
+   some primitive operation, arising either from the primitive itself or its
+   arguments. If this is a boxing operation (as indicated by [extra]) then we
+   want to inline the box. However this involves moving the arguments, so they
+   must be pure (or at most have generative effects, with no coeffects). *)
+   match (effs : Ece.t), (extra : extra_info option) with | ((No_effects |
+   Only_generative_effects _), No_coeffects), Some Boxed_number -> true | ( (
+   (No_effects | Only_generative_effects _ | Arbitrary_effects), (No_coeffects |
+   Has_coeffects) ), (None | Some Boxed_number | Some (Untag _)) ) -> false *)
 
 let create_binding =
   let next_order = ref (-1) in
@@ -266,33 +259,32 @@ let create_binding =
     in
     env, binding
 
-let bind_variable ?extra env var
-    ~effects_and_coeffects_of_defining_expr:effs
+let bind_variable ?extra env var ~effects_and_coeffects_of_defining_expr:effs
     ~inline ~defining_expr =
-  let env, binding =
-    create_binding ?extra env ~inline effs var defining_expr
-  in
+  let env, binding = create_binding ?extra env ~inline effs var defining_expr in
   match inline with
   | Duplicate ->
-    (* check that the effects and coeffects allow the expression to be duplicated
-       without changing semantics *)
-    begin match (effs : Ece.t) with
-      | (Only_generative_effects Immutable | No_effects), No_coeffects, _ -> ()
-      | (No_effects | Arbitrary_effects | Only_generative_effects (Immutable | Mutable | Immutable_unique)),
-        (No_coeffects | Has_coeffects), _ ->
-        Misc.fatal_errorf
-          "Incorect effects and/or coeffects for a duplicated binding: %a"
-          print_binding binding
-    end;
+    (* check that the effects and coeffects allow the expression to be
+       duplicated without changing semantics *)
+    (match (effs : Ece.t) with
+    | (Only_generative_effects Immutable | No_effects), No_coeffects, _ -> ()
+    | ( ( No_effects | Arbitrary_effects
+        | Only_generative_effects (Immutable | Mutable | Immutable_unique) ),
+        (No_coeffects | Has_coeffects),
+        _ ) ->
+      Misc.fatal_errorf
+        "Incorect effects and/or coeffects for a duplicated binding: %a"
+        print_binding binding);
     (* We bind duplicated bindings as pure so that they are inlined/subtituted
        as much as possible. This is legal because of the checkl on effects and
        co-effects above.
 
        CR: this allows to move allocations past function calls (and other
-       effectful expressions), which can break some allocation-counting tests. *)
+       effectful expressions), which can break some allocation-counting
+       tests. *)
     { env with pures = Variable.Map.add var binding env.pures }
-  | Inline_once | Do_not_inline ->
-    begin match To_cmm_effects.classify_by_effects_and_coeffects effs with
+  | Inline_once | Do_not_inline -> (
+    match To_cmm_effects.classify_by_effects_and_coeffects effs with
     | Pure -> { env with pures = Variable.Map.add var binding env.pures }
     | Effect -> { env with stages = Effect (var, binding) :: env.stages }
     | Coeffect_only ->
@@ -305,13 +297,10 @@ let bind_variable ?extra env var
         | [] | Effect _ :: _ ->
           Coeffect_only (Variable.Map.singleton var binding) :: env.stages
       in
-      { env with stages }
-    end
+      { env with stages })
 
-let bind_let_variable ?extra env var
-    ~effects_and_coeffects_of_defining_expr
-    ~inline ~defining_expr
-  =
+let bind_let_variable ?extra env var ~effects_and_coeffects_of_defining_expr
+    ~inline ~defining_expr =
   match (inline : To_cmm_effects.let_binding_classification) with
   | Drop_defining_expr -> env
   | Regular ->
@@ -324,13 +313,14 @@ let bind_let_variable ?extra env var
     bind_variable ?extra env var ~effects_and_coeffects_of_defining_expr
       ~defining_expr ~inline:Duplicate
 
-
 (* Variable lookup (for potential inlining) *)
 
 let will_inline env binding = binding.cmm_expr, env, binding.effs
 
 let will_not_inline env binding =
-  C.var (Backend_var.With_provenance.var binding.cmm_var), env, Ece.pure_duplicatable
+  ( C.var (Backend_var.With_provenance.var binding.cmm_var),
+    env,
+    Ece.pure_duplicatable )
 
 let will_not_inline_var env v =
   (* This is like [will_not_inline] but is used in the case where no delayed
@@ -340,31 +330,22 @@ let will_not_inline_var env v =
     Misc.fatal_errorf "Variable %a not found in env" Variable.print v
   | e -> e, env, Ece.pure_duplicatable
 
-<<<<<<< HEAD
 let inline_variable ?consider_inlining_effectful_expressions env var =
-=======
-let get_variable ~inline_once env var =
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
   match Variable.Map.find var env.pures with
-  | binding ->
-    begin match binding.inline with
-      | Do_not_inline ->
-        will_not_inline env binding
-      | Duplicate ->
-        (* duplicated bindings need to stay in the map of pure bindings *)
-        will_inline env binding
-      | Inline_once ->
-        if inline_once then
-          (* Pure bindings may be inlined at most once. *)
-          let pures = Variable.Map.remove var env.pures in
-          will_inline { env with pures } binding
-        else
-          will_not_inline env binding
-    end
+  | binding -> (
+    match binding.inline with
+    | Do_not_inline -> will_not_inline env binding
+    | Duplicate ->
+      (* duplicated bindings need to stay in the map of pure bindings *)
+      will_inline env binding
+    | Inline_once ->
+      (* Pure bindings may be inlined at most once. *)
+      let pures = Variable.Map.remove var env.pures in
+      will_inline { env with pures } binding)
   | exception Not_found -> (
     match env.stages with
     | [] -> will_not_inline_var env var
-    | Effect (var_from_stage, binding) :: prev_stages ->
+    | Effect (var_from_stage, binding) :: prev_stages -> (
       (* In this case [var_from_stage] corresponds to an effectful binding
          forming the most recent stage. We also know that [var] doesn't have an
          available pure defining expression (either because that expression
@@ -380,20 +361,14 @@ let get_variable ~inline_once env var =
       in
       if not (Variable.equal var var_from_stage)
       then will_not_inline_var env var
-<<<<<<< HEAD
-      else if binding.may_inline && consider_inlining_effectful_expressions
-      then will_inline { env with stages = prev_stages } binding
-      else will_not_inline env binding
-=======
-      else begin match binding.inline with
+      else
+        match binding.inline with
         | Do_not_inline -> will_not_inline env binding
         | Inline_once ->
-          if inline_once
+          if consider_inlining_effectful_expressions
           then will_inline { env with stages = prev_stages } binding
           else will_not_inline env binding
-        | Duplicate -> assert false
-      end
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
+        | Duplicate -> assert false)
     | Coeffect_only coeffects :: prev_stages -> (
       (* Here we see if [var] has a coeffect-only defining expression on the
          most recent stage. If so, then we can commute it with any other
@@ -401,25 +376,18 @@ let get_variable ~inline_once env var =
          defining expression for [var] may then be considered for inlining. *)
       match Variable.Map.find var coeffects with
       | exception Not_found -> will_not_inline_var env var
-      | binding ->
-        begin match binding.inline with
-          | Do_not_inline -> will_not_inline env binding
-          | Duplicate -> assert false
-          | Inline_once ->
-            if inline_once then
-              let coeffects = Variable.Map.remove var coeffects in
-              let env =
-                if Variable.Map.is_empty coeffects
-                then { env with stages = prev_stages }
-                else { env with stages = Coeffect_only coeffects :: prev_stages }
-              in
-              will_inline env binding
-            else
-              will_not_inline env binding
-        end))
-
-let find_variable = get_variable ~inline_once:false
-let inline_variable = get_variable ~inline_once:true
+      | binding -> (
+        match binding.inline with
+        | Do_not_inline -> will_not_inline env binding
+        | Duplicate -> assert false
+        | Inline_once ->
+          let coeffects = Variable.Map.remove var coeffects in
+          let env =
+            if Variable.Map.is_empty coeffects
+            then { env with stages = prev_stages }
+            else { env with stages = Coeffect_only coeffects :: prev_stages }
+          in
+          will_inline env binding)))
 
 (* Flushing delayed bindings *)
 
@@ -448,12 +416,13 @@ let flush_delayed_lets ?(entering_loop = false) env =
     in
     M.fold
       (fun _ b acc ->
-         match b.inline with
-         (* We drop bindings that have been marked as being inlined and duplicated. *)
-         | Duplicate ->
-           Misc.fatal_errorf "Duplicated binding should never be flushed"
-         | Inline_once | Do_not_inline ->
-           Cmm_helpers.letin b.cmm_var ~defining_expr:b.cmm_expr ~body:acc)
+        match b.inline with
+        (* We drop bindings that have been marked as being inlined and
+           duplicated. *)
+        | Duplicate ->
+          Misc.fatal_errorf "Duplicated binding should never be flushed"
+        | Inline_once | Do_not_inline ->
+          Cmm_helpers.letin b.cmm_var ~defining_expr:b.cmm_expr ~body:acc)
       order_map e
   in
   (* Unless entering a loop, only pure bindings that definitely cannot be
@@ -466,9 +435,9 @@ let flush_delayed_lets ?(entering_loop = false) env =
     then
       Variable.Map.partition
         (fun _ binding ->
-           match binding.inline with
-           | Duplicate -> true
-           | Inline_once | Do_not_inline -> false)
+          match binding.inline with
+          | Duplicate -> true
+          | Inline_once | Do_not_inline -> false)
         env.pures
     else
       Variable.Map.partition
@@ -480,4 +449,3 @@ let flush_delayed_lets ?(entering_loop = false) env =
   in
   let flush e = flush pures_to_flush env.stages e in
   flush, { env with stages = []; pures = pures_to_keep }
-

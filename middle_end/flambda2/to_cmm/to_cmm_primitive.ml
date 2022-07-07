@@ -690,8 +690,39 @@ let variadic_primitive _env dbg f args =
   | Make_block (kind, _mut, alloc_mode) -> make_block ~dbg kind alloc_mode args
   | Make_array (kind, _mut, alloc_mode) -> make_array ~dbg kind alloc_mode args
 
-<<<<<<< HEAD
-let prim env res dbg (p : P.t) =
+let arg ?consider_inlining_effectful_expressions ~inline ~dbg env simple =
+  let ((arg_cmm, env, arg_effs) as res) =
+    C.simple ?consider_inlining_effectful_expressions ~dbg env simple
+  in
+  match (inline : To_cmm_effects.let_binding_classification) with
+  | Drop_defining_expr | Regular | May_inline_once -> res
+  | Inline_and_duplicate -> (
+    (* 'simple enough' cmm expressions can be duplicated, but any complex cmm
+       expression will need to be explicitly let-bound to ensure it is not
+       duplicated *)
+    match arg_cmm with
+    | Cconst_int _ | Cconst_natint _ | Cconst_float _ | Cconst_symbol _ | Cvar _
+      ->
+      res
+    | _ ->
+      let var = Variable.create "tmp" in
+      let env =
+        Env.bind_variable env var ~inline:Do_not_inline ~defining_expr:arg_cmm
+          ~effects_and_coeffects_of_defining_expr:arg_effs
+      in
+      Env.inline_variable env var)
+
+let arg_list ?consider_inlining_effectful_expressions ~inline ~dbg env l =
+  let aux (list, env, effs) x =
+    let y, env, eff =
+      arg ?consider_inlining_effectful_expressions ~inline ~dbg env x
+    in
+    y :: list, env, Ece.join eff effs
+  in
+  let args, env, effs = List.fold_left aux ([], env, Ece.pure_duplicatable) l in
+  List.rev args, env, effs
+
+let prim ~inline env res dbg p =
   let consider_inlining_effectful_expressions =
     (* By default we are very conservative about the inlining of effectful
        expressions into the arguments of primitives. We only consider inlining
@@ -707,11 +738,11 @@ let prim env res dbg (p : P.t) =
        This criterion should not be relaxed for any primitive until it is
        certain that the Cmm translation for such primitive both respects
        right-to-left evaluation order and does not duplicate any arguments. *)
-    match p with
+    match (p : P.t) with
     | Nullary _ | Unary _ | Binary _ | Ternary _ -> None
     | Variadic ((Make_block _ | Make_array _), _) -> Some true
   in
-  let simple = C.simple ?consider_inlining_effectful_expressions ~dbg in
+  let arg = arg ?consider_inlining_effectful_expressions ~inline ~dbg in
   (* Somewhat counter-intuitively, the left-to-right translation below (e.g. [x]
      before [y] in the [Binary] case) correctly matches right-to-left evaluation
      order---ensuring maximal inlining---since [C.simple_list] translates the
@@ -727,88 +758,30 @@ let prim env res dbg (p : P.t) =
      desired output Make_block [effect-y; effect-x]. The backend will compile
      this to run effect-x before effect-y by virtue of right-to-left evaluation
      order. This therefore matches the original source code. *)
-  match p with
-  | Nullary prim ->
-    let extra, expr = nullary_primitive env dbg prim in
-    expr, extra, env, res, Ece.pure
-  | Unary (unary, x) ->
-    let x, env, eff = simple env x in
-    let extra, res, expr = unary_primitive env res dbg unary x in
-    expr, extra, env, res, eff
-  | Binary (binary, x, y) ->
-    let x, env, effx = simple env x in
-    let y, env, effy = simple env y in
-=======
-let arg ~inline ~dbg env simple =
-  let (arg_cmm, env, arg_effs) as res = C.simple ~dbg env simple in
-  match (inline : To_cmm_effects.let_binding_classification) with
-  | Drop_defining_expr | Regular | May_inline_once -> res
-  | Inline_and_duplicate ->
-    (* 'simple enough' cmm expressions can be duplicated, but any
-       complex cmm expression will need to be explicitly let-bound
-       to ensure it is not duplicated *)
-    begin match arg_cmm with
-      | Cconst_int _ | Cconst_natint _ | Cconst_float _
-      | Cconst_symbol _ | Cvar _ ->
-        res
-      | _ ->
-        let var = Variable.create "tmp" in
-        let env =
-          Env.bind_variable env var
-            ~inline:Do_not_inline ~defining_expr:arg_cmm
-            ~effects_and_coeffects_of_defining_expr:arg_effs
-        in
-        Env.inline_variable env var
-    end
-
-let arg_list ~inline ~dbg env l =
-  let aux (list, env, effs) x =
-    let y, env, eff = arg ~inline ~dbg env x in
-    y :: list, env, Ece.join eff effs
-  in
-  let args, env, effs = List.fold_left aux ([], env, Ece.pure_duplicatable) l in
-  List.rev args, env, effs
-
-let prim ~inline env res dbg p =
   match (p : P.t) with
   | Nullary prim ->
     let extra, expr = nullary_primitive env dbg prim in
     expr, extra, env, res, Ece.pure
-  | Unary (f, x) ->
-    let x, env, eff = arg ~inline ~dbg env x in
-    let extra, res, expr = unary_primitive env res dbg f x in
+  | Unary (unary, x) ->
+    let x, env, eff = arg env x in
+    let extra, res, expr = unary_primitive env res dbg unary x in
     expr, extra, env, res, eff
-  | Binary (f, x, y) ->
-    let x, env, effx = arg ~inline ~dbg env x in
-    let y, env, effy = arg ~inline ~dbg env y in
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
+  | Binary (binary, x, y) ->
+    let x, env, effx = arg env x in
+    let y, env, effy = arg env y in
     let effs = Ece.join effx effy in
     let expr = binary_primitive env dbg binary x y in
     expr, None, env, res, effs
-<<<<<<< HEAD
   | Ternary (ternary, x, y, z) ->
-    let x, env, effx = simple env x in
-    let y, env, effy = simple env y in
-    let z, env, effz = simple env z in
-=======
-  | Ternary (f, x, y, z) ->
-    let x, env, effx = arg ~inline ~dbg env x in
-    let y, env, effy = arg ~inline ~dbg env y in
-    let z, env, effz = arg ~inline ~dbg env z in
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
+    let x, env, effx = arg env x in
+    let y, env, effy = arg env y in
+    let z, env, effz = arg env z in
     let effs = Ece.join (Ece.join effx effy) effz in
     let expr = ternary_primitive env dbg ternary x y z in
     expr, None, env, res, effs
-<<<<<<< HEAD
   | Variadic (((Make_block _ | Make_array _) as variadic), l) ->
     let args, env, effs =
-      C.simple_list ?consider_inlining_effectful_expressions ~dbg env l
+      arg_list ?consider_inlining_effectful_expressions ~inline ~dbg env l
     in
     let expr = variadic_primitive env dbg variadic args in
-=======
-  | Variadic (f, l) ->
-    let args, env, effs = arg_list ~inline ~dbg env l in
-    let expr = variadic_primitive env dbg f args in
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
     expr, None, env, res, effs
-

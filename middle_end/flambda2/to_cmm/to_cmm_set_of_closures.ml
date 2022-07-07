@@ -200,14 +200,12 @@ module Dynamic = Make_layout_filler (struct
 
   let int ~dbg i = C.nativeint ~dbg i
 
-(* The reason why we can inline simple here is the same as in
-   `To_cmm_shared.simple_list`: the first simple translated
-   (and thus in which an inlining/substitution can occur), is
-   the last simple that will be evaluated, according to the
-   right-to-left evaluation order. This is ensured by the fact
-   that we build each field of the set of closure in left-to-right
-   order, so that the first translated field is actually evaluated
-   last. *)
+  (* The reason why we can inline simple here is the same as in
+     `To_cmm_shared.simple_list`: the first simple translated (and thus in which
+     an inlining/substitution can occur), is the last simple that will be
+     evaluated, according to the right-to-left evaluation order. This is ensured
+     by the fact that we build each field of the set of closure in left-to-right
+     order, so that the first translated field is actually evaluated last. *)
   let simple ~dbg env simple =
     let term, env, eff = C.simple ~dbg env simple in
     `Data [term], env, eff
@@ -403,8 +401,7 @@ let lift_set_of_closures env res ~body ~bound_vars layout set ~translate_expr =
       (fun acc cid v ->
         let v = Bound_var.var v in
         let sym = C.symbol ~dbg (Function_slot.Map.find cid closure_symbols) in
-        Env.bind_variable acc v
-          ~inline:Env.Duplicate ~defining_expr:sym
+        Env.bind_variable acc v ~inline:Env.Duplicate ~defining_expr:sym
           ~effects_and_coeffects_of_defining_expr:Ece.pure_duplicatable)
       env cids bound_vars
   in
@@ -440,8 +437,7 @@ let let_dynamic_set_of_closures0 env res ~body ~bound_vars set
   in
   let soc_var = Variable.create "*set_of_closures*" in
   let env =
-    Env.bind_variable env soc_var
-      ~inline:Env.Do_not_inline ~defining_expr:csoc
+    Env.bind_variable env soc_var ~inline:Env.Do_not_inline ~defining_expr:csoc
       ~effects_and_coeffects_of_defining_expr:effs
   in
   (* Get from the env the cmm variable that was created and bound to the
@@ -472,11 +468,12 @@ let let_dynamic_set_of_closures0 env res ~body ~bound_vars set
         | None -> acc
         | Some (defining_expr, effects_and_coeffects_of_defining_expr) ->
           let v = Bound_var.var v in
-          Env.bind_let_variable acc v
-            ~defining_expr ~effects_and_coeffects_of_defining_expr
-            ~inline:(To_cmm_effects.classify_let_binding v
-                       ~effects_and_coeffects_of_defining_expr
-                       ~num_normal_occurrences_of_bound_vars))
+          Env.bind_let_variable acc v ~defining_expr
+            ~effects_and_coeffects_of_defining_expr
+            ~inline:
+              (To_cmm_effects.classify_let_binding v
+                 ~effects_and_coeffects_of_defining_expr
+                 ~num_normal_occurrences_of_bound_vars))
       env
       (Function_slot.Lmap.keys decls)
       bound_vars

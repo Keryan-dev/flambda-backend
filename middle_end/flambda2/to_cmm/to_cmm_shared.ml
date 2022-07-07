@@ -68,11 +68,7 @@ let symbol ~dbg sym = symbol_from_linkage_name ~dbg (Symbol.linkage_name sym)
 let name0 ?consider_inlining_effectful_expressions env name =
   Name.pattern_match name
     ~var:(fun v ->
-<<<<<<< HEAD
       To_cmm_env.inline_variable ?consider_inlining_effectful_expressions env v)
-=======
-        To_cmm_env.inline_variable env v)
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
     ~symbol:(fun s ->
       (* CR mshinwell: fix debuginfo? *)
       symbol ~dbg:Debuginfo.none s, env, Ece.pure_duplicatable)
@@ -91,14 +87,9 @@ let const ~dbg cst =
 
 let simple ?consider_inlining_effectful_expressions ~dbg env s =
   Simple.pattern_match s
-<<<<<<< HEAD
     ~name:(fun n ~coercion:_ ->
       name0 ?consider_inlining_effectful_expressions env n)
-    ~const:(fun c -> const ~dbg c, env, Ece.pure)
-=======
-    ~name:(fun n ~coercion:_ -> name env n)
     ~const:(fun c -> const ~dbg c, env, Ece.pure_duplicatable)
->>>>>>> f16755dce (Allow duplication of primitives in to_cmm)
 
 let name_static name =
   Name.pattern_match name
