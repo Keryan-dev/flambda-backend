@@ -273,7 +273,7 @@ let bind_variable ?extra env var ~effects_and_coeffects_of_defining_expr:effs
         (No_coeffects | Has_coeffects),
         _ ) ->
       Misc.fatal_errorf
-        "Incorect effects and/or coeffects for a duplicated binding: %a"
+        "Incorrect effects and/or coeffects for a duplicated binding: %a"
         print_binding binding);
     (* We bind duplicated bindings as pure so that they are inlined/subtituted
        as much as possible. This is legal because of the checkl on effects and
@@ -309,7 +309,9 @@ let bind_let_variable ?extra env var ~effects_and_coeffects_of_defining_expr
   | May_inline_once ->
     bind_variable ?extra env var ~effects_and_coeffects_of_defining_expr
       ~defining_expr ~inline:Inline_once
-  | Inline_and_duplicate ->
+  | Inline_once | Inline_and_duplicate ->
+    (* We ask for duplication even when there is only one use to enfore inlining
+       (see above) *)
     bind_variable ?extra env var ~effects_and_coeffects_of_defining_expr
       ~defining_expr ~inline:Duplicate
 

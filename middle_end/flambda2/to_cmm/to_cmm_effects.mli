@@ -46,6 +46,7 @@ type let_binding_classification = private
   | Drop_defining_expr  (** The defining expression may be deleted. *)
   | May_inline_once
       (** The defining expression may be inlined at the use site. *)
+  | Inline_once  (** The defining expression must inlined at the use site. *)
   | Inline_and_duplicate
       (** The defining expression must be inlined at all use sites. *)
 

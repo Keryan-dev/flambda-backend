@@ -35,6 +35,7 @@ type let_binding_classification =
   | Regular
   | Drop_defining_expr
   | May_inline_once
+  | Inline_once
   | Inline_and_duplicate
 
 let classify_let_binding var
@@ -51,7 +52,7 @@ let classify_let_binding var
       Regular
       (* Could be May_inline technically, but it doesn't matter since it can
          only be flushed by the env. *))
-  | One ->
+  | One -> (
     (* Any defining expression used exactly once is considered for inlining at
        this stage. The environment is going to handle the details of preserving
        the effects and coeffects ordering (if inlining without reordering is
@@ -61,7 +62,9 @@ let classify_let_binding var
        Whether inlining of _effectful_ expressions _actually occurs_ depends on
        the context. Currently this is very restricted, see comments in
        [To_cmm_primitive]. *)
-    May_inline_once
+    match effects_and_coeffects_of_defining_expr with
+    | _, _, Delay -> Inline_once
+    | _, _, Strict -> May_inline_once)
   | More_than_one -> (
     match effects_and_coeffects_of_defining_expr with
     | _, _, Delay -> Inline_and_duplicate

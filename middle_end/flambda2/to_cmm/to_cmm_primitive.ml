@@ -696,7 +696,7 @@ let arg ?consider_inlining_effectful_expressions ~inline ~dbg env simple =
   in
   match (inline : To_cmm_effects.let_binding_classification) with
   | Drop_defining_expr | Regular | May_inline_once -> res
-  | Inline_and_duplicate -> (
+  | Inline_once | Inline_and_duplicate -> (
     (* 'simple enough' cmm expressions can be duplicated, but any complex cmm
        expression will need to be explicitly let-bound to ensure it is not
        duplicated *)
@@ -704,13 +704,18 @@ let arg ?consider_inlining_effectful_expressions ~inline ~dbg env simple =
     | Cconst_int _ | Cconst_natint _ | Cconst_float _ | Cconst_symbol _ | Cvar _
       ->
       res
-    | _ ->
-      let var = Variable.create "tmp" in
-      let env =
-        Env.bind_variable env var ~inline:Do_not_inline ~defining_expr:arg_cmm
-          ~effects_and_coeffects_of_defining_expr:arg_effs
-      in
-      Env.inline_variable env var)
+    | _ -> (
+      match arg_effs, (inline : To_cmm_effects.let_binding_classification) with
+      | ( ((No_effects | Only_generative_effects Immutable), No_coeffects, _),
+          Inline_once ) ->
+        res
+      | _, _ ->
+        let var = Variable.create "tmp" in
+        let env =
+          Env.bind_variable env var ~inline:Do_not_inline ~defining_expr:arg_cmm
+            ~effects_and_coeffects_of_defining_expr:arg_effs
+        in
+        Env.inline_variable env var))
 
 let arg_list ?consider_inlining_effectful_expressions ~inline ~dbg env l =
   let aux (list, env, effs) x =
