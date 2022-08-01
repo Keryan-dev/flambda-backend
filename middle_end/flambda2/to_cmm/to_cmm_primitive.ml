@@ -24,6 +24,24 @@ module C = struct
   include To_cmm_shared
 end
 
+type delayed_args_expr =
+  | No_arg of Cmm.expression
+  | One_arg of (Cmm.expression -> Cmm.expression)
+  | Two_args of (Cmm.expression -> Cmm.expression -> Cmm.expression)
+  | Three_args of
+      (Cmm.expression -> Cmm.expression -> Cmm.expression -> Cmm.expression)
+  | N_args of (Cmm.expression list -> Cmm.expression)
+
+let wrap_delayed_args expr args =
+  match expr, args with
+  | No_arg expr, [] -> expr
+  | One_arg expr, [arg] -> expr arg
+  | Two_args expr, [arg1; arg2] -> expr arg1 arg2
+  | Three_args expr, [arg1; arg2; arg3] -> expr arg1 arg2 arg3
+  | N_args expr, l -> expr l
+  | _ ->
+    Misc.fatal_error "Wrong number of argument in To_cmm_primitive conversion."
+
 (* Closure offsets *)
 
 let function_slot_offset env function_slot =
@@ -325,38 +343,48 @@ let arithmetic_conversion dbg src dst arg =
     when Target_system.is_32_bit ->
     C.unsupported_32_bit ()
   (* Identity on floats *)
-  | Naked_float, Naked_float -> None, arg
+  | Naked_float, Naked_float ->
+    None, wrap_delayed_args (One_arg (fun arg -> arg))
   (* Conversions to and from tagged ints *)
   | ( (Naked_int32 | Naked_int64 | Naked_nativeint | Naked_immediate),
       Tagged_immediate ) ->
-    None, C.tag_int arg dbg
+    None, wrap_delayed_args (One_arg (fun arg -> C.tag_int arg dbg))
   | Tagged_immediate, (Naked_int64 | Naked_nativeint | Naked_immediate) ->
-    Some (Env.Untag arg), C.untag_int arg dbg
+    ( Some (Env.Untag arg),
+      wrap_delayed_args (One_arg (fun arg -> C.untag_int arg dbg)) )
   (* Operations resulting in int32s must take care to sign_extend the res *)
   | Tagged_immediate, Naked_int32 ->
-    None, C.sign_extend_32 dbg (C.untag_int arg dbg)
+    ( None,
+      wrap_delayed_args
+        (One_arg (fun arg -> C.sign_extend_32 dbg (C.untag_int arg dbg))) )
   | (Naked_int32 | Naked_int64 | Naked_nativeint | Naked_immediate), Naked_int32
     ->
-    None, C.sign_extend_32 dbg arg
+    None, wrap_delayed_args (One_arg (C.sign_extend_32 dbg))
   (* No-op conversions *)
   | Tagged_immediate, Tagged_immediate
   | Naked_int32, (Naked_int64 | Naked_nativeint | Naked_immediate)
   | Naked_int64, (Naked_int64 | Naked_nativeint | Naked_immediate)
   | Naked_nativeint, (Naked_int64 | Naked_nativeint | Naked_immediate)
   | Naked_immediate, (Naked_int64 | Naked_nativeint | Naked_immediate) ->
-    None, arg
+    None, wrap_delayed_args (One_arg (fun arg -> arg))
   (* Int-Float conversions *)
   | Tagged_immediate, Naked_float ->
-    None, C.float_of_int ~dbg (C.untag_int arg dbg)
+    ( None,
+      wrap_delayed_args
+        (One_arg (fun arg -> C.float_of_int ~dbg (C.untag_int arg dbg))) )
   | (Naked_immediate | Naked_int32 | Naked_int64 | Naked_nativeint), Naked_float
     ->
-    None, C.float_of_int ~dbg arg
+    None, wrap_delayed_args (One_arg (C.float_of_int ~dbg))
   | Naked_float, Tagged_immediate ->
-    None, C.tag_int (C.int_of_float ~dbg arg) dbg
+    ( None,
+      wrap_delayed_args
+        (One_arg (fun arg -> C.tag_int (C.int_of_float ~dbg arg) dbg)) )
   | Naked_float, (Naked_immediate | Naked_int64 | Naked_nativeint) ->
-    None, C.int_of_float ~dbg arg
+    None, wrap_delayed_args (One_arg (C.int_of_float ~dbg))
   | Naked_float, Naked_int32 ->
-    None, C.sign_extend_32 dbg (C.int_of_float ~dbg arg)
+    ( None,
+      wrap_delayed_args
+        (One_arg (fun arg -> C.sign_extend_32 dbg (C.int_of_float ~dbg arg))) )
 
 let binary_phys_comparison _env dbg kind op x y =
   match (kind : Flambda_kind.t), (op : P.equality_comparison) with
@@ -544,80 +572,120 @@ let binary_float_comp_primitive _env dbg op x y =
 let binary_float_comp_primitive_yielding_int _env dbg x y =
   C.mk_compare_floats_untagged dbg x y
 
+let invalid res ~message =
+  let expr, res = C.invalid res ~message in
+  wrap_delayed_args (No_arg expr), res
+
 (* Primitives *)
 
-let nullary_primitive _env dbg prim : _ * Cmm.expression =
+let nullary_primitive _env dbg prim : Cmm.expression =
   match (prim : P.nullary_primitive) with
   | Optimised_out _ -> Misc.fatal_errorf "TODO: phantom let-bindings in to_cmm"
-  | Probe_is_enabled { name } -> None, Cop (Cprobe_is_enabled { name }, [], dbg)
-  | Begin_region -> None, C.beginregion ~dbg
+  | Probe_is_enabled { name } -> Cop (Cprobe_is_enabled { name }, [], dbg)
+  | Begin_region -> C.beginregion ~dbg
 
 let unary_primitive env res dbg f arg =
   match (f : P.unary_primitive) with
   | Duplicate_array _ ->
     ( None,
       res,
-      C.extcall ~dbg ~alloc:true ~returns:true ~is_c_builtin:false ~ty_args:[]
-        "caml_obj_dup" Cmm.typ_val [arg] )
+      wrap_delayed_args
+        (One_arg
+           (fun arg ->
+             C.extcall ~dbg ~alloc:true ~returns:true ~is_c_builtin:false
+               ~ty_args:[] "caml_obj_dup" Cmm.typ_val [arg])) )
   | Duplicate_block _ ->
     ( None,
       res,
-      C.extcall ~dbg ~alloc:true ~returns:true ~is_c_builtin:false ~ty_args:[]
-        "caml_obj_dup" Cmm.typ_val [arg] )
-  | Is_int -> None, res, C.and_int arg (C.int ~dbg 1) dbg
-  | Get_tag -> None, res, C.get_tag arg dbg
-  | Array_length -> None, res, array_length ~dbg arg
+      wrap_delayed_args
+        (One_arg
+           (fun arg ->
+             C.extcall ~dbg ~alloc:true ~returns:true ~is_c_builtin:false
+               ~ty_args:[] "caml_obj_dup" Cmm.typ_val [arg])) )
+  | Is_int ->
+    ( None,
+      res,
+      wrap_delayed_args (One_arg (fun arg -> C.and_int arg (C.int ~dbg 1) dbg))
+    )
+  | Get_tag ->
+    None, res, wrap_delayed_args (One_arg (fun arg -> C.get_tag arg dbg))
+  | Array_length -> None, res, wrap_delayed_args (One_arg (array_length ~dbg))
   | Bigarray_length { dimension } ->
     ( None,
       res,
-      C.load ~dbg Word_int Mutable
-        ~addr:(C.field_address arg (4 + dimension) dbg) )
-  | String_length _ -> None, res, C.string_length arg dbg
-  | Int_as_pointer -> None, res, C.int_as_pointer arg dbg
-  | Opaque_identity -> None, res, C.opaque arg dbg
+      wrap_delayed_args
+        (One_arg
+           (fun arg ->
+             C.load ~dbg Word_int Mutable
+               ~addr:(C.field_address arg (4 + dimension) dbg))) )
+  | String_length _ ->
+    None, res, wrap_delayed_args (One_arg (fun arg -> C.string_length arg dbg))
+  | Int_as_pointer ->
+    None, res, wrap_delayed_args (One_arg (fun arg -> C.int_as_pointer arg dbg))
+  | Opaque_identity ->
+    None, res, wrap_delayed_args (One_arg (fun arg -> C.opaque arg dbg))
   | Int_arith (kind, op) ->
-    None, res, unary_int_arith_primitive env dbg kind op arg
-  | Float_arith op -> None, res, unary_float_arith_primitive env dbg op arg
+    ( None,
+      res,
+      wrap_delayed_args
+        (One_arg (fun arg -> unary_int_arith_primitive env dbg kind op arg)) )
+  | Float_arith op ->
+    ( None,
+      res,
+      wrap_delayed_args
+        (One_arg (fun arg -> unary_float_arith_primitive env dbg op arg)) )
   | Num_conv { src; dst } ->
     let extra, expr = arithmetic_conversion dbg src dst arg in
     extra, res, expr
-  | Boolean_not -> None, res, C.mk_not dbg arg
+  | Boolean_not -> None, res, wrap_delayed_args (One_arg (C.mk_not dbg))
   | Reinterpret_int64_as_float ->
     (* CR-someday mshinwell: We should add support for this operation in the
        backend. It isn't the identity as there may need to be a move between
        different register kinds (e.g. integer to XMM registers on x86-64). *)
     ( None,
       res,
-      C.extcall ~dbg ~alloc:false ~returns:true ~is_c_builtin:false
-        ~ty_args:[C.exttype_of_kind Flambda_kind.naked_int64]
-        "caml_int64_float_of_bits_unboxed" Cmm.typ_float [arg] )
-  | Unbox_number kind -> None, res, unbox_number ~dbg kind arg
-  | Untag_immediate -> Some (Env.Untag arg), res, C.untag_int arg dbg
+      wrap_delayed_args
+        (One_arg
+           (fun arg ->
+             C.extcall ~dbg ~alloc:false ~returns:true ~is_c_builtin:false
+               ~ty_args:[C.exttype_of_kind Flambda_kind.naked_int64]
+               "caml_int64_float_of_bits_unboxed" Cmm.typ_float [arg])) )
+  | Unbox_number kind ->
+    None, res, wrap_delayed_args (One_arg (unbox_number ~dbg kind))
+  | Untag_immediate ->
+    ( Some (Env.Untag arg),
+      res,
+      wrap_delayed_args (One_arg (fun arg -> C.untag_int arg dbg)) )
   | Box_number (kind, alloc_mode) ->
-    Some Env.Boxed_number, res, box_number ~dbg kind alloc_mode arg
+    ( Some Env.Boxed_number,
+      res,
+      wrap_delayed_args (One_arg (box_number ~dbg kind alloc_mode)) )
   | Tag_immediate ->
     (* We could have an [Env.Tag] which would be returned here, but probably
        unnecessary at the moment. *)
-    None, res, C.tag_int arg dbg
+    None, res, wrap_delayed_args (One_arg (fun arg -> C.tag_int arg dbg))
   | Project_function_slot { move_from = c1; move_to = c2 } -> (
     match function_slot_offset env c1, function_slot_offset env c2 with
     | ( Live_function_slot { offset = c1_offset; _ },
         Live_function_slot { offset = c2_offset; _ } ) ->
       let diff = c2_offset - c1_offset in
-      None, res, C.infix_field_address ~dbg arg diff
+      ( None,
+        res,
+        wrap_delayed_args
+          (One_arg (fun arg -> C.infix_field_address ~dbg arg diff)) )
     (* one of the ids has been marked as dead, the code should be
        unreachable. *)
     | Dead_function_slot, Live_function_slot _ ->
       let message = dead_slots_msg dbg [c1] [] in
-      let expr, res = C.invalid res ~message in
+      let expr, res = invalid res ~message in
       None, res, expr
     | Live_function_slot _, Dead_function_slot ->
       let message = dead_slots_msg dbg [c2] [] in
-      let expr, res = C.invalid res ~message in
+      let expr, res = invalid res ~message in
       None, res, expr
     | Dead_function_slot, Dead_function_slot ->
       let message = dead_slots_msg dbg [c1; c2] [] in
-      let expr, res = C.invalid res ~message in
+      let expr, res = invalid res ~message in
       None, res, expr)
   | Project_value_slot { project_from; value_slot } -> (
     match
@@ -625,20 +693,25 @@ let unary_primitive env res dbg f arg =
     with
     (* Normal case: we have offsets for everything *)
     | Live_value_slot { offset }, Live_function_slot { offset = base; _ } ->
-      None, res, C.get_field_gen Asttypes.Immutable arg (offset - base) dbg
+      ( None,
+        res,
+        wrap_delayed_args
+          (One_arg
+             (fun arg ->
+               C.get_field_gen Asttypes.Immutable arg (offset - base) dbg)) )
     (* the value slot and/or function slot has been explicitly removed, the code
        is unreachable *)
     | Dead_value_slot, Live_function_slot _ ->
       let message = dead_slots_msg dbg [] [value_slot] in
-      let expr, res = C.invalid res ~message in
+      let expr, res = invalid res ~message in
       None, res, expr
     | Live_value_slot _, Dead_function_slot ->
       let message = dead_slots_msg dbg [project_from] [] in
-      let expr, res = C.invalid res ~message in
+      let expr, res = invalid res ~message in
       None, res, expr
     | Dead_value_slot, Dead_function_slot ->
       let message = dead_slots_msg dbg [project_from] [value_slot] in
-      let expr, res = C.invalid res ~message in
+      let expr, res = invalid res ~message in
       None, res, expr)
   | Is_boxed_float ->
     (* As a note, this omits the [Is_in_value_area] check that exists in
@@ -647,14 +720,26 @@ let unary_primitive env res dbg f arg =
        that they will be forbidden entirely in OCaml 5. *)
     ( None,
       res,
-      C.ite
-        (C.and_int arg (C.int 1 ~dbg) dbg)
-        ~dbg ~then_:(C.int 0 ~dbg) ~then_dbg:dbg
-        ~else_:(C.eq (C.get_tag arg dbg) (C.int Obj.double_tag ~dbg) ~dbg)
-        ~else_dbg:dbg )
+      wrap_delayed_args
+        (One_arg
+           (fun arg ->
+             C.ite
+               (C.and_int arg (C.int 1 ~dbg) dbg)
+               ~dbg ~then_:(C.int 0 ~dbg) ~then_dbg:dbg
+               ~else_:
+                 (C.eq (C.get_tag arg dbg) (C.int Obj.double_tag ~dbg) ~dbg)
+               ~else_dbg:dbg)) )
   | Is_flat_float_array ->
-    None, res, C.eq ~dbg (C.get_tag arg dbg) (C.floatarray_tag dbg)
-  | End_region -> None, res, C.return_unit dbg (C.endregion ~dbg arg)
+    ( None,
+      res,
+      wrap_delayed_args
+        (One_arg
+           (fun arg -> C.eq ~dbg (C.get_tag arg dbg) (C.floatarray_tag dbg))) )
+  | End_region ->
+    ( None,
+      res,
+      wrap_delayed_args
+        (One_arg (fun arg -> C.return_unit dbg (C.endregion ~dbg arg))) )
 
 let binary_primitive env dbg f x y =
   match (f : P.binary_primitive) with
@@ -690,32 +775,31 @@ let variadic_primitive _env dbg f args =
   | Make_block (kind, _mut, alloc_mode) -> make_block ~dbg kind alloc_mode args
   | Make_array (kind, _mut, alloc_mode) -> make_array ~dbg kind alloc_mode args
 
+type arg_expr =
+  | Cmm of Cmm.expression
+  | Delayed_binding of Variable.t
+
 let arg ?consider_inlining_effectful_expressions ~inline ~dbg env simple =
-  let ((arg_cmm, env, arg_effs) as res) =
+  let arg_cmm, env, arg_effs =
     C.simple ?consider_inlining_effectful_expressions ~dbg env simple
   in
   match (inline : To_cmm_effects.let_binding_classification) with
-  | Drop_defining_expr | Regular | May_inline_once -> res
-  | Inline_once | Inline_and_duplicate -> (
+  | Drop_defining_expr | Regular | May_inline_once -> Cmm arg_cmm, env, arg_effs
+  | May_duplicate -> (
     (* 'simple enough' cmm expressions can be duplicated, but any complex cmm
        expression will need to be explicitly let-bound to ensure it is not
        duplicated *)
     match arg_cmm with
     | Cconst_int _ | Cconst_natint _ | Cconst_float _ | Cconst_symbol _ | Cvar _
       ->
-      res
-    | _ -> (
-      match arg_effs, (inline : To_cmm_effects.let_binding_classification) with
-      | ( ((No_effects | Only_generative_effects Immutable), No_coeffects, _),
-          Inline_once ) ->
-        res
-      | _, _ ->
-        let var = Variable.create "tmp" in
-        let env =
-          Env.bind_variable env var ~inline:Do_not_inline ~defining_expr:arg_cmm
-            ~effects_and_coeffects_of_defining_expr:arg_effs
-        in
-        Env.inline_variable env var))
+      Cmm arg_cmm, env, arg_effs
+    | _ ->
+      let var = Variable.create "tmp" in
+      let env =
+        Env.bind_variable env var ~inline:Undecided ~defining_expr:arg_cmm
+          ~effects_and_coeffects_of_defining_expr:arg_effs
+      in
+      Delayed_binding var, env, Ece.pure_duplicatable)
 
 let arg_list ?consider_inlining_effectful_expressions ~inline ~dbg env l =
   let aux (list, env, effs) x =
@@ -727,7 +811,7 @@ let arg_list ?consider_inlining_effectful_expressions ~inline ~dbg env l =
   let args, env, effs = List.fold_left aux ([], env, Ece.pure_duplicatable) l in
   List.rev args, env, effs
 
-let prim ~inline env res dbg p =
+let splitable_prim ~inline env res dbg p =
   let consider_inlining_effectful_expressions =
     (* By default we are very conservative about the inlining of effectful
        expressions into the arguments of primitives. We only consider inlining
@@ -765,28 +849,47 @@ let prim ~inline env res dbg p =
      order. This therefore matches the original source code. *)
   match (p : P.t) with
   | Nullary prim ->
-    let extra, expr = nullary_primitive env dbg prim in
-    expr, extra, env, res, Ece.pure
+    let expr = nullary_primitive env dbg prim in
+    wrap_delayed_args (No_arg expr), [], None, env, res, Ece.pure
   | Unary (unary, x) ->
     let x, env, eff = arg env x in
-    let extra, res, expr = unary_primitive env res dbg unary x in
-    expr, extra, env, res, eff
+    (match x with
+    | Cmm x ->
+      let extra, res, expr = unary_primitive env res dbg unary x in
+      wrap_delayed_args (No_arg (expr [x])), [], extra, env, res, eff
+    | Delayed_binding v ->
+      let expr = wrap_delayed_args (One_arg (fun x -> let _,_, expr = unary_primitive env res dbg unary x in expr [x])) in
+      expr, [v], None, env, res, eff)
   | Binary (binary, x, y) ->
     let x, env, effx = arg env x in
     let y, env, effy = arg env y in
     let effs = Ece.join effx effy in
-    let expr = binary_primitive env dbg binary x y in
-    expr, None, env, res, effs
+    let expr = binary_primitive env dbg binary in
+    wrap_delayed_args (Two_args expr), [x; y], None, env, res, effs
   | Ternary (ternary, x, y, z) ->
     let x, env, effx = arg env x in
     let y, env, effy = arg env y in
     let z, env, effz = arg env z in
     let effs = Ece.join (Ece.join effx effy) effz in
-    let expr = ternary_primitive env dbg ternary x y z in
-    expr, None, env, res, effs
+    let expr = ternary_primitive env dbg ternary in
+    wrap_delayed_args (Three_args expr), [x; y; z], None, env, res, effs
   | Variadic (((Make_block _ | Make_array _) as variadic), l) ->
     let args, env, effs =
       arg_list ?consider_inlining_effectful_expressions ~inline ~dbg env l
     in
-    let expr = variadic_primitive env dbg variadic args in
-    expr, None, env, res, effs
+    let expr = variadic_primitive env dbg variadic in
+    wrap_delayed_args (N_args expr), args, None, env, res, effs
+
+let prim ~inline env res dbg p =
+  let expr, args, extra, env, res, effs =
+    splitable_prim ~inline env res dbg p
+  in
+  let args, env, effs =
+    List.fold_left
+    (fun (args, env, effs) arg ->
+       let arg, env, arg_effs = Env.inline_variable env arg in
+       arg :: args, env, Ece.join effs arg_effs
+    )
+    ([], env, effs) args
+  in
+  expr args, extra, env, res, effs

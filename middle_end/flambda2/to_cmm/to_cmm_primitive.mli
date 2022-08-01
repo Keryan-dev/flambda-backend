@@ -17,12 +17,23 @@
 (** Translation of Flambda primitives to Cmm. *)
 
 val prim :
-  inline:To_cmm_effects.let_binding_classification ->
   To_cmm_env.t ->
   To_cmm_result.t ->
   Debuginfo.t ->
   Flambda_primitive.t ->
   Cmm.expression
+  * To_cmm_env.extra_info option
+  * To_cmm_env.t
+  * To_cmm_result.t
+  * Effects_and_coeffects.t
+
+val splitable_prim :
+  To_cmm_env.t ->
+  To_cmm_result.t ->
+  Debuginfo.t ->
+  Flambda_primitive.t ->
+  (Cmm.expression list -> Cmm.expression)
+  * Variable.t list
   * To_cmm_env.extra_info option
   * To_cmm_env.t
   * To_cmm_result.t

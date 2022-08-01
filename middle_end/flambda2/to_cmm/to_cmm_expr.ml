@@ -392,7 +392,7 @@ and let_expr env res let_expr =
             bind_simple ~dbg env v ~num_normal_occurrences_of_bound_vars s
           in
           expr env res body
-        | Singleton v, Prim (p, dbg) ->
+        | Singleton v, Prim (p, dbg) -> (
           let v = Bound_var.var v in
           let effects_and_coeffects_of_defining_expr =
             Flambda_primitive.effects_and_coeffects p
@@ -402,19 +402,33 @@ and let_expr env res let_expr =
               ~num_normal_occurrences_of_bound_vars
               ~effects_and_coeffects_of_defining_expr
           in
-          (* We could try and avoid translating a primitive when we know we're
-             going to drop it, but it's not clear it's useful/important. *)
-          let defining_expr, extra, env, res, effs =
-            To_cmm_primitive.prim ~inline env res dbg p
-          in
-          let effects_and_coeffects_of_defining_expr =
-            Ece.join effs effects_and_coeffects_of_defining_expr
-          in
-          let env =
-            Env.bind_let_variable ?extra env v ~inline
-              ~effects_and_coeffects_of_defining_expr ~defining_expr
-          in
-          expr env res body
+          match inline with
+          | May_duplicate ->
+            let expr_to_build, args, extra, env, res, effs =
+              To_cmm_primitive.splitable_prim env res dbg p
+            in
+            let effects_and_coeffects_of_defining_expr =
+              Ece.join effs effects_and_coeffects_of_defining_expr
+            in
+            let env =
+              Env.bind_splitable_variable ?extra env v
+                ~effects_and_coeffects_of_defining_expr ~expr_to_build ~args
+            in
+            expr env res body
+          | _ ->
+            (* We could try and avoid translating a primitive when we know we're
+               going to drop it, but it's not clear it's useful/important. *)
+            let defining_expr, extra, env, res, effs =
+              To_cmm_primitive.prim env res dbg p
+            in
+            let effects_and_coeffects_of_defining_expr =
+              Ece.join effs effects_and_coeffects_of_defining_expr
+            in
+            let env =
+              Env.bind_let_variable ?extra env v ~inline
+                ~effects_and_coeffects_of_defining_expr ~defining_expr
+            in
+            expr env res body)
         | Set_of_closures bound_vars, Set_of_closures soc ->
           To_cmm_set_of_closures.let_dynamic_set_of_closures env res ~body
             ~bound_vars ~num_normal_occurrences_of_bound_vars soc

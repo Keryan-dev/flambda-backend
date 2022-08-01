@@ -17,6 +17,7 @@
 type inline =
   | Do_not_inline
   | Inline_once
+  | Undecided (** For sub-expression of duplicatable bindings, decision will be made at effective use site *)
   | Duplicate
       (** Akin to systematic substitutions, it should not be used for
           (co)effectful expressions *)
@@ -139,6 +140,17 @@ val bind_variable :
   effects_and_coeffects_of_defining_expr:Effects_and_coeffects.t ->
   inline:inline ->
   defining_expr:Cmm.expression ->
+  t
+
+(** Bind a variable to the given Cmm expression, splited between some
+    sub-expressions and a function building the whole. *)
+val bind_splitable_variable :
+  ?extra:extra_info ->
+  t ->
+  Variable.t ->
+  effects_and_coeffects_of_defining_expr:Effects_and_coeffects.t ->
+  expr_to_build:(Cmm.expression list -> Cmm.expression) ->
+  args:Cmm.expression list ->
   t
 
 (** Bind a variable to the given Cmm expression, to allow for delaying the
