@@ -1,0 +1,20 @@
+(* TEST
+ compile_only = "true";
+ flambda2;
+ setup-ocamlopt.byte-build-env;
+ ocamlopt.byte with check_simplify;
+ check_fexpr_dump;
+*)
+
+(* The Failure exception raised by failwith is never used, so its symbol should
+   disappear; however the Apply_cont corresponding to the raise must be
+   rewritten to use a summy argument instead. This test creates a case where the
+   rewriting needs to apply in a switch arm instead of a regular Apply_cont. *)
+
+let[@inline never] opaque x = x
+
+let n =
+  try
+    let[@local never] f () = if opaque true then 42 else failwith "urk" in
+    f ()
+  with _ -> 1
