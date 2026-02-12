@@ -3,8 +3,8 @@
  flambda2;
  ocamlopt_flags = "-g";
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 (* Example reduced from code in the `msat` package.

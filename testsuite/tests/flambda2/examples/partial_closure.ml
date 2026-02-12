@@ -2,8 +2,8 @@
  compile_only = "true";
  flambda2;
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 let add_univars = List.fold_left (fun s x -> s + x)

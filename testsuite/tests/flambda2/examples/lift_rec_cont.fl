@@ -2,7 +2,7 @@
  compile_only = "true";
  flambda2;
  setup-simple-build-env;
- fexpr with check_raw, check_simplify;
+ fexpr with dump-raw, dump-simplify;
 *)
 
 let code f_0 deleted in

@@ -3,8 +3,8 @@
  flambda2;
  ocamlopt_flags = "-dlambda";
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
  check-ocamlopt.byte-output;
 *)
 

@@ -3,8 +3,8 @@
  modules = "functor_with_rec.ml";
  flambda2;
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 (* This should inline [Functor_with_rec.F], and we should check that this

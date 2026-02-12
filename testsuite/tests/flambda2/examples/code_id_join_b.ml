@@ -4,8 +4,8 @@
  flambda2;
  ocamlopt_flags = "-O2";
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 (* Paired with code_id_join_a.ml. Optimisation level -O2 was needed to trigger

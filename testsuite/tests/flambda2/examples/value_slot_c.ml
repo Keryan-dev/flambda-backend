@@ -3,8 +3,8 @@
  modules = "value_slot_a.ml value_slot_b.ml";
  flambda2;
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 (* Comes with value_slot_a.ml and value_slot_b.ml.

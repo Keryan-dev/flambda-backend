@@ -3,8 +3,8 @@
  flambda2;
  ocamlopt_flags = "-flambda-cse-depth=2";
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 (* The issue with this example is that we want to remove the second array bounds

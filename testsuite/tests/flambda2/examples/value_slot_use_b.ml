@@ -3,8 +3,8 @@
  modules = "value_slot_use_a.ml";
  flambda2;
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 external op : 'a -> 'a = "%opaque"

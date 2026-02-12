@@ -2,8 +2,8 @@
  compile_only = "true";
  flambda2;
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-simplify;
+ check-fexpr-dump;
 *)
 
 (* This test was extracted from the hdf5 package. It tests the case where the

@@ -2,8 +2,8 @@
  compile_only = "true";
  flambda2;
  setup-ocamlopt.byte-build-env;
- ocamlopt.byte with check_raw, check_simplify;
- check_fexpr_dump;
+ ocamlopt.byte with dump-raw, dump-simplify;
+ check-fexpr-dump;
 *)
 
 type +'a node =
