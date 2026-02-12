@@ -571,7 +571,7 @@ flambda_unit: LPAREN TILDE
 ## LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an expression after "(".
 
 flambda_unit: KWD_SWITCH TILDE
 ##
@@ -583,7 +583,7 @@ flambda_unit: KWD_SWITCH TILDE
 ## KWD_SWITCH
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a simple value to scrutinize after "switch".
 
 flambda_unit: KWD_SWITCH FLOAT SYMBOL
 ##
@@ -596,7 +596,8 @@ flambda_unit: KWD_SWITCH FLOAT SYMBOL
 ## KWD_SWITCH simple
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected switch cases after scrutinee.
+Example: switch x | 0 -> k0 | 1 -> k1
 
 flambda_unit: KWD_SWITCH FLOAT TILDE TILDE
 ##
@@ -608,7 +609,7 @@ flambda_unit: KWD_SWITCH FLOAT TILDE TILDE
 ## simple TILDE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a coercion after "~" (either "id" or "depth <from> -> <to>").
 
 flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH TILDE
 ##
@@ -620,7 +621,7 @@ flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH TILDE
 ## KWD_DEPTH
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a rec_info expression after "depth".
 
 flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO LPAREN TILDE
 ##
@@ -632,7 +633,7 @@ flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO LPAREN TILDE
 ## LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a rec_info expression after "(".
 
 flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH KWD_UNROLL TILDE
 ##
@@ -644,7 +645,7 @@ flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH KWD_UNROLL TILDE
 ## KWD_UNROLL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an integer after "unroll".
 
 flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH KWD_UNROLL INT TILDE
 ##
@@ -656,7 +657,7 @@ flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH KWD_UNROLL INT TILDE
 ## KWD_UNROLL plain_int
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a rec_info expression after unroll depth.
 
 flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH KWD_SUCC TILDE
 ##
@@ -668,7 +669,7 @@ flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH KWD_SUCC TILDE
 ## KWD_SUCC
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a rec_info expression after "succ".
 
 flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO LPAREN INT TILDE
 ##
@@ -680,7 +681,7 @@ flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO LPAREN INT TILDE
 ## LPAREN rec_info
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after rec_info expression.
 
 flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH INT TILDE
 ##
@@ -692,7 +693,7 @@ flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH INT TILDE
 ## KWD_DEPTH rec_info
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "->" after rec_info in depth coercion.
 
 flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH INT MINUSGREATER TILDE
 ##
@@ -704,7 +705,7 @@ flambda_unit: KWD_SWITCH FLOAT TILDE KWD_DEPTH INT MINUSGREATER TILDE
 ## KWD_DEPTH rec_info MINUSGREATER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a rec_info expression after "->".
 
 flambda_unit: KWD_SWITCH FLOAT PIPE TILDE
 ##
@@ -716,7 +717,7 @@ flambda_unit: KWD_SWITCH FLOAT PIPE TILDE
 ## option(PIPE)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a switch case (tag -> continuation).
 
 flambda_unit: KWD_SWITCH FLOAT INT TILDE
 ##
@@ -728,7 +729,7 @@ flambda_unit: KWD_SWITCH FLOAT INT TILDE
 ## tag
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "->" after tag in switch case.
 
 flambda_unit: KWD_SWITCH FLOAT INT MINUSGREATER TILDE
 ##
@@ -740,7 +741,7 @@ flambda_unit: KWD_SWITCH FLOAT INT MINUSGREATER TILDE
 ## tag MINUSGREATER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation application after "->" in switch case.
 
 flambda_unit: KWD_CONT IDENT KWD_PUSH TILDE
 ##
@@ -752,7 +753,7 @@ flambda_unit: KWD_CONT IDENT KWD_PUSH TILDE
 ## KWD_PUSH
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "push".
 
 flambda_unit: KWD_CONT IDENT KWD_PUSH LPAREN TILDE
 ##
@@ -764,7 +765,7 @@ flambda_unit: KWD_CONT IDENT KWD_PUSH LPAREN TILDE
 ## KWD_PUSH LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation name after "push (".
 
 flambda_unit: KWD_CONT IDENT KWD_PUSH LPAREN IDENT TILDE
 ##
@@ -776,7 +777,7 @@ flambda_unit: KWD_CONT IDENT KWD_PUSH LPAREN IDENT TILDE
 ## KWD_PUSH LPAREN continuation
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after continuation in push.
 
 flambda_unit: KWD_CONT IDENT KWD_POP TILDE
 ##
@@ -788,7 +789,7 @@ flambda_unit: KWD_CONT IDENT KWD_POP TILDE
 ## KWD_POP
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "pop".
 
 flambda_unit: KWD_CONT IDENT KWD_POP LPAREN TILDE
 ##
@@ -800,7 +801,8 @@ flambda_unit: KWD_CONT IDENT KWD_POP LPAREN TILDE
 ## KWD_POP LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation name or raise kind (regular, reraise, notrace)
+after "pop (".
 
 flambda_unit: KWD_CONT IDENT KWD_POP LPAREN KWD_NOTRACE TILDE
 ##
@@ -812,7 +814,7 @@ flambda_unit: KWD_CONT IDENT KWD_POP LPAREN KWD_NOTRACE TILDE
 ## KWD_POP LPAREN option(raise_kind)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation name.
 
 flambda_unit: KWD_CONT IDENT KWD_POP LPAREN IDENT TILDE
 ##
@@ -824,7 +826,7 @@ flambda_unit: KWD_CONT IDENT KWD_POP LPAREN IDENT TILDE
 ## KWD_POP LPAREN option(raise_kind) continuation
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after continuation in pop.
 
 flambda_unit: KWD_CONT IDENT KWD_POP LPAREN IDENT RPAREN TILDE
 ##
@@ -836,7 +838,7 @@ flambda_unit: KWD_CONT IDENT KWD_POP LPAREN IDENT RPAREN TILDE
 ## continuation option(trap_action)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an argument list in parentheses or end of continuation application.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COMMA TILDE
 ##
@@ -848,7 +850,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COMMA TILDE
 ## simple COMMA
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a simple value after ",".
 
 flambda_unit: KWD_SWITCH FLOAT INT MINUSGREATER IDENT LPAREN RPAREN TILDE
 ##
@@ -861,7 +863,7 @@ flambda_unit: KWD_SWITCH FLOAT INT MINUSGREATER IDENT LPAREN RPAREN TILDE
 ## switch_case
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "|" followed by another switch case, or end of switch.
 
 flambda_unit: KWD_SWITCH FLOAT INT MINUSGREATER IDENT PIPE TILDE
 ##
@@ -873,7 +875,7 @@ flambda_unit: KWD_SWITCH FLOAT INT MINUSGREATER IDENT PIPE TILDE
 ## switch_case PIPE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a switch case (tag -> continuation) after "|".
 
 flambda_unit: KWD_LET KWD_SET_OF_CLOSURES TILDE
 ##
@@ -885,7 +887,7 @@ flambda_unit: KWD_LET KWD_SET_OF_CLOSURES TILDE
 ## KWD_SET_OF_CLOSURES
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a closure binding (symbol = closure code_id).
 
 flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL TILDE
 ##
@@ -897,7 +899,7 @@ flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL TILDE
 ## symbol
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "=" after symbol.
 
 flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL TILDE
 ##
@@ -909,7 +911,8 @@ flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL TILDE
 ## symbol EQUAL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a closure expression after "=".
+Example: closure code_id
 
 flambda_unit: KWD_LET SYMBOL EQUAL KWD_CLOSURE TILDE
 ##
@@ -921,7 +924,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL KWD_CLOSURE TILDE
 ## KWD_CLOSURE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a code id after "closure".
 
 flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT AT TILDE
 ##
@@ -933,7 +936,7 @@ flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT AT TILDE
 ## AT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a function slot name after "@".
 
 flambda_unit: KWD_LET SYMBOL EQUAL KWD_CLOSURE IDENT AT IDENT TILDE
 ##
@@ -945,7 +948,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL KWD_CLOSURE IDENT AT IDENT TILDE
 ## KWD_CLOSURE code_id function_slot_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "&" for local allocation mode, or end of closure declaration.
 
 flambda_unit: KWD_LET SYMBOL EQUAL KWD_CLOSURE IDENT AMP TILDE
 ##
@@ -957,7 +960,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL KWD_CLOSURE IDENT AMP TILDE
 ## AMP
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a region name after "&".
 
 flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL KWD_CLOSURE IDENT KWD_IN
 ##
@@ -979,7 +982,7 @@ flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL KWD_CLOSURE IDENT KWD_IN
 ## In state 91, spurious reduction of production static_closure_binding -> symbol EQUAL fun_decl
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "and", "with", or "end".
 
 flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL KWD_CLOSURE IDENT KWD_AND TILDE
 ##
@@ -991,7 +994,7 @@ flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL KWD_CLOSURE IDENT KWD_AND
 ## static_closure_binding KWD_AND
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a closure binding after "and".
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH TILDE
 ##
@@ -1003,7 +1006,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH TILDE
 ## KWD_WITH
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "{" after "with".
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE TILDE
 ##
@@ -1015,7 +1018,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE TILDE
 ## KWD_WITH LBRACE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a value slot binding (name = value) or "}".
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT TILDE
 ##
@@ -1027,7 +1030,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT TILDE
 ## value_slot_for_projection
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "=" after value slot name.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT EQUAL TILDE
 ##
@@ -1039,7 +1042,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT EQUAL TILDE
 ## value_slot_for_projection EQUAL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a simple value after "=".
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT EQUAL FLOAT SYMBOL
 ##
@@ -1052,7 +1055,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT EQUAL FLOAT SYMBOL
 ## value_slot_for_projection EQUAL simple
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ";", "}", or "~" for coercion.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT EQUAL FLOAT SEMICOLON TILDE
 ##
@@ -1064,7 +1067,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE IDENT EQUAL FLOAT SEMICOL
 ## value_slot SEMICOLON
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a value slot binding after ";".
 
 flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL KWD_CLOSURE IDENT KWD_WITH LBRACE RBRACE TILDE
 ##
@@ -1076,7 +1079,7 @@ flambda_unit: KWD_LET KWD_SET_OF_CLOSURES SYMBOL EQUAL KWD_CLOSURE IDENT KWD_WIT
 ## KWD_SET_OF_CLOSURES separated_nonempty_list(KWD_AND,static_closure_binding) with_value_slots_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "end" after set_of_closures definition.
 
 flambda_unit: KWD_LET KWD_CODE KWD_UNROLL TILDE
 ##
@@ -1088,7 +1091,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_UNROLL TILDE
 ## KWD_UNROLL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "unroll".
 
 flambda_unit: KWD_LET KWD_CODE KWD_UNROLL LPAREN TILDE
 ##
@@ -1100,7 +1103,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_UNROLL LPAREN TILDE
 ## KWD_UNROLL LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an integer after "unroll (".
 
 flambda_unit: KWD_LET KWD_CODE KWD_UNROLL LPAREN INT TILDE
 ##
@@ -1112,7 +1115,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_UNROLL LPAREN INT TILDE
 ## KWD_UNROLL LPAREN plain_int
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after unroll count.
 
 flambda_unit: KWD_LET KWD_CODE KWD_INLINE TILDE
 ##
@@ -1127,7 +1130,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_INLINE TILDE
 ## KWD_INLINE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "inline".
 
 flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN TILDE
 ##
@@ -1142,7 +1145,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN TILDE
 ## KWD_INLINE LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "always", "available", "never", or "default" after "inline (".
 
 flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_NEVER TILDE
 ##
@@ -1154,7 +1157,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_NEVER TILDE
 ## KWD_INLINE LPAREN KWD_NEVER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inline attribute.
 
 flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_DEFAULT TILDE
 ##
@@ -1166,7 +1169,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_DEFAULT TILDE
 ## KWD_INLINE LPAREN KWD_DEFAULT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inline attribute.
 
 flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_AVAILABLE TILDE
 ##
@@ -1178,7 +1181,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_AVAILABLE TILDE
 ## KWD_INLINE LPAREN KWD_AVAILABLE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inline attribute.
 
 flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_ALWAYS TILDE
 ##
@@ -1190,7 +1193,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_ALWAYS TILDE
 ## KWD_INLINE LPAREN KWD_ALWAYS
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inline attribute.
 
 flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_ALWAYS RPAREN TILDE
 ##
@@ -1202,7 +1205,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_INLINE LPAREN KWD_ALWAYS RPAREN TILDE
 ## KWD_CODE recursive option(inline)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "loopify", "size", or a code id.
 
 flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY TILDE
 ##
@@ -1214,7 +1217,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY TILDE
 ## KWD_LOOPIFY
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "loopify".
 
 flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN TILDE
 ##
@@ -1226,7 +1229,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN TILDE
 ## KWD_LOOPIFY LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "always", "never", "done", or "default" after "loopify (".
 
 flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN KWD_DEFAULT TILDE
 ##
@@ -1239,7 +1242,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN KWD_DEFAULT TILDE
 ## KWD_DEFAULT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "tailrec" or ")" after "default".
 
 flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN KWD_ALWAYS TILDE
 ##
@@ -1251,7 +1254,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN KWD_ALWAYS TILDE
 ## KWD_LOOPIFY LPAREN loopify
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after loopify attribute.
 
 flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN KWD_ALWAYS RPAREN TILDE
 ##
@@ -1263,7 +1266,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_LOOPIFY LPAREN KWD_ALWAYS RPAREN TILDE
 ## KWD_CODE recursive option(inline) loopify_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "size" keyword.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE TILDE
 ##
@@ -1275,7 +1278,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE TILDE
 ## KWD_CODE recursive option(inline) loopify_opt KWD_SIZE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "size".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN TILDE
 ##
@@ -1287,7 +1290,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN TILDE
 ## KWD_CODE recursive option(inline) loopify_opt KWD_SIZE LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an integer after "size (".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT TILDE
 ##
@@ -1299,7 +1302,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT TILDE
 ## KWD_CODE recursive option(inline) loopify_opt KWD_SIZE LPAREN code_size
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after code size.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN TILDE
 ##
@@ -1311,7 +1314,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN TILDE
 ## KWD_CODE recursive option(inline) loopify_opt KWD_SIZE LPAREN code_size RPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "newer_version_of", "tupled", or a code id.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF TILDE
 ##
@@ -1323,7 +1326,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF T
 ## KWD_NEWER_VERSION_OF
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "newer_version_of".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF LPAREN TILDE
 ##
@@ -1335,7 +1338,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF L
 ## KWD_NEWER_VERSION_OF LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a code id after "newer_version_of (".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF LPAREN IDENT TILDE
 ##
@@ -1347,7 +1350,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF L
 ## KWD_NEWER_VERSION_OF LPAREN code_id
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after code id.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF LPAREN IDENT RPAREN TILDE
 ##
@@ -1359,7 +1362,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_NEWER_VERSION_OF L
 ## KWD_CODE recursive option(inline) loopify_opt KWD_SIZE LPAREN code_size RPAREN option(newer_version_of)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "tupled" or a code id.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_TUPLED TILDE
 ##
@@ -1371,7 +1374,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN KWD_TUPLED TILDE
 ## KWD_CODE recursive option(inline) loopify_opt KWD_SIZE LPAREN code_size RPAREN option(newer_version_of) boption(KWD_TUPLED)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a code id.
 
 flambda_unit: KWD_LET IDENT TILDE
 ##
@@ -1383,7 +1386,7 @@ flambda_unit: KWD_LET IDENT TILDE
 ## variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "=" after variable name in let binding.
 
 flambda_unit: KWD_LET IDENT EQUAL TILDE
 ##
@@ -1395,7 +1398,7 @@ flambda_unit: KWD_LET IDENT EQUAL TILDE
 ## variable EQUAL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an expression after "=" in let binding.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM TILDE
 ##
@@ -1407,7 +1410,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM TILDE
 ## PRIM
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected primitive parameters or arguments in parentheses.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM DOT TILDE
 ##
@@ -1421,7 +1424,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM DOT TILDE
 ## DOT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a parameter name or "[" after ".".
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM DOT LBRACK TILDE
 ##
@@ -1433,7 +1436,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM DOT LBRACK TILDE
 ## DOT LBRACK
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a parameter value after ".[".
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM DOT LBRACK IDENT TILDE
 ##
@@ -1445,7 +1448,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM DOT LBRACK IDENT TILDE
 ## DOT LBRACK prim_param_val
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "]" after parameter value.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM DOT IDENT TILDE
 ##
@@ -1458,7 +1461,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM DOT IDENT TILDE
 ## DOT IDENT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "[", another parameter, or arguments in parentheses.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM DOT IDENT LBRACK TILDE
 ##
@@ -1470,7 +1473,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM DOT IDENT LBRACK TILDE
 ## DOT IDENT LBRACK
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a parameter value after "[".
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM DOT IDENT LBRACK IDENT TILDE
 ##
@@ -1482,7 +1485,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM DOT IDENT LBRACK IDENT TILDE
 ## DOT IDENT LBRACK prim_param_val
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "]" after parameter value.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM DOT LBRACK IDENT RBRACK TILDE
 ##
@@ -1494,7 +1497,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM DOT LBRACK IDENT RBRACK TILDE
 ## prim_param
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected more parameters or arguments in parentheses.
 
 flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO TILDE
 ##
@@ -1506,7 +1509,7 @@ flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO TILDE
 ## KWD_REC_INFO
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a rec_info expression after "rec_info".
 
 flambda_unit: KWD_LET IDENT EQUAL FLOAT SYMBOL
 ##
@@ -1519,7 +1522,7 @@ flambda_unit: KWD_LET IDENT EQUAL FLOAT SYMBOL
 ## simple
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "with", "in", "and", or "~" for coercion.
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY TILDE
 ##
@@ -1531,7 +1534,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY TILDE
 ## STATIC_CONST_VALUE_ARRAY
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "[|" after "Value_array".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY LBRACKPIPE TILDE
 ##
@@ -1543,7 +1546,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY LBRACKPIPE TILDE
 ## STATIC_CONST_VALUE_ARRAY LBRACKPIPE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected fields or "|]" after "[|".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY LBRACKPIPE SYMBOL TILDE
 ##
@@ -1556,7 +1559,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY LBRACKPIPE SYMBOL TI
 ## field_of_block
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ";" or "|]" after field.
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY LBRACKPIPE SYMBOL SEMICOLON TILDE
 ##
@@ -1568,7 +1571,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_VALUE_ARRAY LBRACKPIPE SYMBOL SE
 ## field_of_block SEMICOLON
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a field after ";".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK TILDE
 ##
@@ -1580,7 +1583,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK TILDE
 ## STATIC_CONST_FLOAT_BLOCK
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "Float_block".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK LPAREN TILDE
 ##
@@ -1592,7 +1595,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK LPAREN TILDE
 ## STATIC_CONST_FLOAT_BLOCK LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected float values or ")" after "(".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK LPAREN IDENT TILDE
 ##
@@ -1605,7 +1608,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK LPAREN IDENT TILDE
 ## float_or_variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "," or ")" after float value.
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK LPAREN IDENT COMMA TILDE
 ##
@@ -1617,7 +1620,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_BLOCK LPAREN IDENT COMMA T
 ## float_or_variable COMMA
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a float value or variable after ",".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY TILDE
 ##
@@ -1629,7 +1632,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY TILDE
 ## STATIC_CONST_FLOAT_ARRAY
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "[|" after "Float_array".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY LBRACKPIPE TILDE
 ##
@@ -1641,7 +1644,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY LBRACKPIPE TILDE
 ## STATIC_CONST_FLOAT_ARRAY LBRACKPIPE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected float values or "|]" after "[|".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY LBRACKPIPE IDENT TILDE
 ##
@@ -1654,7 +1657,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY LBRACKPIPE IDENT TIL
 ## float_or_variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ";" or "|]" after float value.
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY LBRACKPIPE IDENT SEMICOLON TILDE
 ##
@@ -1666,7 +1669,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_FLOAT_ARRAY LBRACKPIPE IDENT SEM
 ## float_or_variable SEMICOLON
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a float value or variable after ";".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK TILDE
 ##
@@ -1678,7 +1681,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK TILDE
 ## STATIC_CONST_BLOCK
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a mutability modifier or tag after "Block".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK KWD_IMMUTABLE_UNIQUE TILDE
 ##
@@ -1690,7 +1693,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK KWD_IMMUTABLE_UNIQUE TILDE
 ## STATIC_CONST_BLOCK mutability
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a tag (integer) after mutability modifier.
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT TILDE
 ##
@@ -1702,7 +1705,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT TILDE
 ## STATIC_CONST_BLOCK mutability tag
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after tag.
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT LPAREN TILDE
 ##
@@ -1714,7 +1717,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT LPAREN TILDE
 ## STATIC_CONST_BLOCK mutability tag LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected fields or ")" after "(".
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT LPAREN SYMBOL TILDE
 ##
@@ -1727,7 +1730,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT LPAREN SYMBOL TILDE
 ## field_of_block
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "," or ")" after field.
 
 flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT LPAREN SYMBOL COMMA TILDE
 ##
@@ -1739,7 +1742,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL STATIC_CONST_BLOCK INT LPAREN SYMBOL COMMA TI
 ## field_of_block COMMA
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a field after ",".
 
 flambda_unit: KWD_LET SYMBOL EQUAL KWD_MUTABLE TILDE
 ##
@@ -1751,7 +1754,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL KWD_MUTABLE TILDE
 ## KWD_MUTABLE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a string after "mutable".
 
 flambda_unit: KWD_LET SYMBOL EQUAL IDENT TILDE
 ##
@@ -1763,7 +1766,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL IDENT TILDE
 ## variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ":" after variable in static data.
 
 flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON TILDE
 ##
@@ -1775,7 +1778,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON TILDE
 ## variable COLON
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a static data kind (e.g. "float boxed", "int32 boxed") after ":".
 
 flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_NATIVEINT TILDE
 ##
@@ -1787,7 +1790,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_NATIVEINT TILDE
 ## KWD_NATIVEINT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" after "nativeint".
 
 flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_INT64 TILDE
 ##
@@ -1799,7 +1802,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_INT64 TILDE
 ## KWD_INT64
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" after "int64".
 
 flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_INT32 TILDE
 ##
@@ -1811,7 +1814,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_INT32 TILDE
 ## KWD_INT32
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" after "int32".
 
 flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_FLOAT32 TILDE
 ##
@@ -1823,7 +1826,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_FLOAT32 TILDE
 ## KWD_FLOAT32
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" after "float32".
 
 flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_FLOAT TILDE
 ##
@@ -1835,7 +1838,7 @@ flambda_unit: KWD_LET SYMBOL EQUAL IDENT COLON KWD_FLOAT TILDE
 ## KWD_FLOAT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" after "float".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT TILDE
 ##
@@ -1847,7 +1850,9 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT TILDE
 ## code_header
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an argument list or variable name after code header.
+Example: code size (1) f (arg) closure_var region_var ghost_region_var
+  depth_var -> k * exn = ...
 
 flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN TILDE
 ##
@@ -1859,7 +1864,7 @@ flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN TILDE
 ## LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a kinded variable after "(".
 
 flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT TILDE
 ##
@@ -1871,7 +1876,7 @@ flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT TILDE
 ## variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ":" for kind annotation, "," for next parameter, or ")".
 
 flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT COLON TILDE
 ##
@@ -1883,7 +1888,7 @@ flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT COLON TILDE
 ## COLON
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a kind with subkind after ":".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK TILDE
 ##
@@ -1895,7 +1900,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK TILDE
 ## LBRACK
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected variant constructors after "[".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT TILDE
 ##
@@ -1908,7 +1913,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT TILDE
 ## INT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "|", "]", or "of" after integer in variant type.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT PIPE TILDE
 ##
@@ -1920,7 +1925,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT PIPE TILDE
 ## targetint PIPE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an integer or constructor after "|".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF KWD_FLOAT PIPE INT TILDE
 ##
@@ -1932,7 +1937,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF KWD_FLOAT PIPE INT 
 ## tag
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "of" after tag in non-constant constructor.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF TILDE
 ##
@@ -1944,7 +1949,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF TILDE
 ## tag KWD_OF
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected kinds after "of".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_VAL TILDE
 ##
@@ -1957,7 +1962,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_VAL TILDE
 ## KWD_VAL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "array", "tagged", or end of kind.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_NATIVEINT TILDE
 ##
@@ -1970,7 +1975,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_NATIVEINT TILDE
 ## KWD_NATIVEINT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" or end of kind.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_INT64 TILDE
 ##
@@ -1983,7 +1988,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_INT64 TILDE
 ## KWD_INT64
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" or end of kind.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_INT32 TILDE
 ##
@@ -1996,7 +2001,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_INT32 TILDE
 ## KWD_INT32
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" or end of kind.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_IMM TILDE
 ##
@@ -2010,7 +2015,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_IMM TILDE
 ## KWD_IMM
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "tagged", "array", or end of kind.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT32 TILDE
 ##
@@ -2023,7 +2028,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT32 TILDE
 ## KWD_FLOAT32
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed" or end of kind.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT TILDE
 ##
@@ -2038,7 +2043,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT TILDE
 ## KWD_FLOAT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "boxed", "^", "array", or end of kind.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT CARET TILDE
 ##
@@ -2050,7 +2055,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT CARET TILDE
 ## KWD_FLOAT CARET
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an integer (number of fields) after "^".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_ANY TILDE
 ##
@@ -2062,7 +2067,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_ANY TILDE
 ## KWD_ANY
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "array" after "any".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_REC_INFO TILDE
 ##
@@ -2075,7 +2080,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_REC_INFO TILDE
 ## kind_with_subkind
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "*" for product kind, or end of kind annotation.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT STAR TILDE
 ##
@@ -2087,7 +2092,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT STAR TILDE
 ## kind_with_subkind STAR
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a kind after "*".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF KWD_FLOAT RPAREN
 ##
@@ -2110,7 +2115,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF KWD_FLOAT RPAREN
 ## In state 284, spurious reduction of production nonconst_ctor -> tag KWD_OF kinds_with_subkinds_nonempty
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "|" or "]" after non-constant constructor.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF KWD_FLOAT PIPE TILDE
 ##
@@ -2122,7 +2127,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON LBRACK INT KWD_OF KWD_FLOAT PIPE TILD
 ## nonconst_ctor PIPE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a non-constant constructor (tag of kinds) after "|".
 
 flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT COLON KWD_REC_INFO TILDE
 ##
@@ -2135,7 +2140,7 @@ flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT COLON KWD_REC_INFO TILDE
 ## kinded_variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "," or ")" after kinded variable.
 
 flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT COMMA TILDE
 ##
@@ -2147,7 +2152,7 @@ flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT COMMA TILDE
 ## kinded_variable COMMA
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a kinded variable after ",".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT LPAREN IDENT RPAREN TILDE
 ##
@@ -2159,7 +2164,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT LPAREN IDENT RPA
 ## code_header kinded_args
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a variable (closure_var) after argument list.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT TILDE
 ##
@@ -2171,7 +2176,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT TILDE
 ## code_header kinded_args variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a variable (region_var) after closure variable.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT TILDE
 ##
@@ -2183,7 +2188,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT TILD
 ## code_header kinded_args variable variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a variable (ghost_region_var).
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT TILDE
 ##
@@ -2195,7 +2200,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a variable (depth_var).
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT TILDE
 ##
@@ -2207,7 +2212,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable variable
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "->" after depth variable.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER TILDE
 ##
@@ -2219,7 +2224,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable variable MINUSGREATER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation name after "->".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER IDENT TILDE
 ##
@@ -2231,7 +2236,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable variable MINUSGREATER continuation_id
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "*" followed by an exception continuation.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER IDENT STAR TILDE
 ##
@@ -2243,7 +2248,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## STAR
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation name after "*".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER IDENT STAR IDENT TILDE
 ##
@@ -2255,7 +2260,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable variable MINUSGREATER continuation_id exn_continuation_id
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ":", "local", or "=" after exception continuation.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER IDENT STAR IDENT COLON TILDE
 ##
@@ -2267,7 +2272,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## COLON
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a return arity (kinds) after ":".
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER IDENT STAR IDENT COLON KWD_UNIT TILDE
 ##
@@ -2279,7 +2284,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable variable MINUSGREATER continuation_id exn_continuation_id return_arity
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "local" or "=" after return arity.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER IDENT STAR IDENT KWD_LOCAL TILDE
 ##
@@ -2291,7 +2296,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable variable MINUSGREATER continuation_id exn_continuation_id return_arity boption(KWD_LOCAL)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "=" before the code body.
 
 flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDENT IDENT MINUSGREATER IDENT STAR IDENT EQUAL TILDE
 ##
@@ -2303,7 +2308,7 @@ flambda_unit: KWD_LET KWD_CODE KWD_SIZE LPAREN INT RPAREN IDENT IDENT IDENT IDEN
 ## code_header kinded_args variable variable variable variable MINUSGREATER continuation_id exn_continuation_id return_arity boption(KWD_LOCAL) EQUAL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a body expression after "=".
 
 flambda_unit: KWD_INVALID TILDE
 ##
@@ -2315,7 +2320,7 @@ flambda_unit: KWD_INVALID TILDE
 ## KWD_INVALID
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a string after "invalid".
 
 flambda_unit: KWD_APPLY KWD_DIRECT TILDE
 ##
@@ -2327,7 +2332,7 @@ flambda_unit: KWD_APPLY KWD_DIRECT TILDE
 ## KWD_DIRECT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "direct".
 
 flambda_unit: KWD_APPLY KWD_DIRECT LPAREN TILDE
 ##
@@ -2339,7 +2344,7 @@ flambda_unit: KWD_APPLY KWD_DIRECT LPAREN TILDE
 ## KWD_DIRECT LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a code id after "direct (".
 
 flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT TILDE
 ##
@@ -2351,7 +2356,7 @@ flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT TILDE
 ## KWD_DIRECT LPAREN code_id
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "@", "&", or ")" after code id.
 
 flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT AT IDENT TILDE
 ##
@@ -2363,7 +2368,7 @@ flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT AT IDENT TILDE
 ## KWD_DIRECT LPAREN code_id function_slot_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "&" for allocation mode or ")" to close direct call.
 
 flambda_unit: KWD_APPLY AMP TILDE
 ##
@@ -2375,7 +2380,7 @@ flambda_unit: KWD_APPLY AMP TILDE
 ## AMP
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a region name after "&".
 
 flambda_unit: KWD_APPLY AMP IDENT TILDE
 ##
@@ -2387,7 +2392,7 @@ flambda_unit: KWD_APPLY AMP IDENT TILDE
 ## AMP region
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "&" followed by a ghost region.
 
 flambda_unit: KWD_APPLY AMP IDENT AMP TILDE
 ##
@@ -2399,7 +2404,7 @@ flambda_unit: KWD_APPLY AMP IDENT AMP TILDE
 ## AMP region AMP
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a region name after "&".
 
 flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT AMP IDENT AMP IDENT TILDE
 ##
@@ -2411,7 +2416,7 @@ flambda_unit: KWD_APPLY KWD_DIRECT LPAREN IDENT AMP IDENT AMP IDENT TILDE
 ## KWD_DIRECT LPAREN code_id function_slot_opt alloc_mode_for_applications_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after direct call specification.
 
 flambda_unit: KWD_APPLY KWD_CCALL TILDE
 ##
@@ -2423,7 +2428,7 @@ flambda_unit: KWD_APPLY KWD_CCALL TILDE
 ## KWD_CCALL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "noalloc" or a function to call after "ccall".
 
 flambda_unit: KWD_APPLY KWD_CCALL KWD_NOALLOC TILDE
 ##
@@ -2437,7 +2442,7 @@ flambda_unit: KWD_APPLY KWD_CCALL KWD_NOALLOC TILDE
 ## call_kind
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a function to apply, or an inlined/inlining_state attribute.
 
 flambda_unit: KWD_APPLY KWD_UNROLL TILDE
 ##
@@ -2449,7 +2454,7 @@ flambda_unit: KWD_APPLY KWD_UNROLL TILDE
 ## KWD_UNROLL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "unroll".
 
 flambda_unit: KWD_APPLY KWD_UNROLL LPAREN TILDE
 ##
@@ -2461,7 +2466,7 @@ flambda_unit: KWD_APPLY KWD_UNROLL LPAREN TILDE
 ## KWD_UNROLL LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an integer after "unroll (".
 
 flambda_unit: KWD_APPLY KWD_UNROLL LPAREN INT TILDE
 ##
@@ -2473,7 +2478,7 @@ flambda_unit: KWD_APPLY KWD_UNROLL LPAREN INT TILDE
 ## KWD_UNROLL LPAREN plain_int
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after unroll count.
 
 flambda_unit: KWD_APPLY KWD_INLINED TILDE
 ##
@@ -2488,7 +2493,7 @@ flambda_unit: KWD_APPLY KWD_INLINED TILDE
 ## KWD_INLINED
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "inlined".
 
 flambda_unit: KWD_APPLY KWD_INLINED LPAREN TILDE
 ##
@@ -2503,7 +2508,7 @@ flambda_unit: KWD_APPLY KWD_INLINED LPAREN TILDE
 ## KWD_INLINED LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "always", "hint", "never", or "default" after "inlined (".
 
 flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_NEVER TILDE
 ##
@@ -2515,7 +2520,7 @@ flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_NEVER TILDE
 ## KWD_INLINED LPAREN KWD_NEVER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inlined attribute.
 
 flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_HINT TILDE
 ##
@@ -2527,7 +2532,7 @@ flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_HINT TILDE
 ## KWD_INLINED LPAREN KWD_HINT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inlined attribute.
 
 flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_DEFAULT TILDE
 ##
@@ -2539,7 +2544,7 @@ flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_DEFAULT TILDE
 ## KWD_INLINED LPAREN KWD_DEFAULT
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inlined attribute.
 
 flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_ALWAYS TILDE
 ##
@@ -2551,7 +2556,7 @@ flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_ALWAYS TILDE
 ## KWD_INLINED LPAREN KWD_ALWAYS
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inlined attribute.
 
 flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_ALWAYS RPAREN TILDE
 ##
@@ -2565,7 +2570,7 @@ flambda_unit: KWD_APPLY KWD_INLINED LPAREN KWD_ALWAYS RPAREN TILDE
 ## call_kind option(inlined)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a function to apply, or an inlining_state attribute.
 
 flambda_unit: KWD_APPLY KWD_INLINING_STATE TILDE
 ##
@@ -2577,7 +2582,7 @@ flambda_unit: KWD_APPLY KWD_INLINING_STATE TILDE
 ## KWD_INLINING_STATE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "inlining_state".
 
 flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN TILDE
 ##
@@ -2589,7 +2594,7 @@ flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN TILDE
 ## KWD_INLINING_STATE LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "depth" after "inlining_state (".
 
 flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH TILDE
 ##
@@ -2601,7 +2606,7 @@ flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH TILDE
 ## KWD_DEPTH
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "(" after "depth".
 
 flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN TILDE
 ##
@@ -2613,7 +2618,7 @@ flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN TILDE
 ## KWD_DEPTH LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an integer after "depth (".
 
 flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN INT TILDE
 ##
@@ -2625,7 +2630,7 @@ flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN INT TILDE
 ## KWD_DEPTH LPAREN plain_int
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after depth value.
 
 flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN INT RPAREN TILDE
 ##
@@ -2637,7 +2642,7 @@ flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN INT RPAREN TI
 ## KWD_INLINING_STATE LPAREN inlining_state_depth
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after inlining state depth.
 
 flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN INT RPAREN RPAREN TILDE
 ##
@@ -2651,7 +2656,7 @@ flambda_unit: KWD_APPLY KWD_INLINING_STATE LPAREN KWD_DEPTH LPAREN INT RPAREN RP
 ## call_kind option(inlined) option(inlining_state)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a function to apply, or arguments in parentheses.
 
 flambda_unit: KWD_APPLY LPAREN TILDE
 ##
@@ -2664,7 +2669,7 @@ flambda_unit: KWD_APPLY LPAREN TILDE
 ## call_kind option(inlined) option(inlining_state) LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a simple value (argument or function with arity annotation).
 
 flambda_unit: KWD_APPLY LPAREN FLOAT SYMBOL
 ##
@@ -2679,7 +2684,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT SYMBOL
 ## call_kind option(inlined) option(inlining_state) LPAREN simple
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ":", ",", ")", or "~" after simple value.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON TILDE
 ##
@@ -2691,7 +2696,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON TILDE
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a kind or "_" after ":".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_UNIT TILDE
 ##
@@ -2703,7 +2708,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_UNIT TILDE
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON blank_or(kinds_with_subkinds)
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "->" after parameter arity.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER TILDE
 ##
@@ -2715,7 +2720,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER TILDE
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON blank_or(kinds_with_subkinds) MINUSGREATER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a return arity after "->".
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_UNIT TILDE
 ##
@@ -2727,7 +2732,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_UNIT TILDE
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON blank_or(kinds_with_subkinds) MINUSGREATER kinds_with_subkinds
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after return arity.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAREN TILDE
 ##
@@ -2739,7 +2744,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAR
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON blank_or(kinds_with_subkinds) MINUSGREATER kinds_with_subkinds RPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected arguments in parentheses.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAREN LPAREN RPAREN TILDE
 ##
@@ -2751,7 +2756,7 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAR
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON blank_or(kinds_with_subkinds) MINUSGREATER kinds_with_subkinds RPAREN simple_args
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "->" after arguments.
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAREN MINUSGREATER TILDE
 ##
@@ -2763,7 +2768,9 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAR
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON blank_or(kinds_with_subkinds) MINUSGREATER kinds_with_subkinds RPAREN simple_args MINUSGREATER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation after "->".
+Example of an application:
+  apply f (arg1 arg2) -> cont * exn_cont
 
 flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAREN MINUSGREATER IDENT TILDE
 ##
@@ -2775,7 +2782,9 @@ flambda_unit: KWD_APPLY LPAREN FLOAT COLON KWD_FLOAT MINUSGREATER KWD_FLOAT RPAR
 ## call_kind option(inlined) option(inlining_state) LPAREN simple COLON blank_or(kinds_with_subkinds) MINUSGREATER kinds_with_subkinds RPAREN simple_args MINUSGREATER result_continuation
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "*" followed by an exception continuation.
+Example of an application:
+  apply f (arg1 arg2) -> cont * exn_cont
 
 flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR TILDE
 ##
@@ -2787,7 +2796,7 @@ flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR TILDE
 ## STAR
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation after "*".
 
 flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT TILDE
 ##
@@ -2799,7 +2808,7 @@ flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT TILDE
 ## STAR continuation
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected end of application or extra exception arguments in parentheses.
 
 flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN TILDE
 ##
@@ -2811,7 +2820,7 @@ flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN TILDE
 ## LPAREN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an extra exception argument (simple value followed by a kind).
 
 flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN FLOAT SYMBOL
 ##
@@ -2824,7 +2833,7 @@ flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN FLOAT SYMBOL
 ## simple
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a kind annotation for the exception extra argument.
 
 flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN FLOAT KWD_REC_INFO TILDE
 ##
@@ -2837,7 +2846,7 @@ flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN FLOAT KWD_REC_INFO 
 ## exn_extra_arg
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "," or ")" after exception extra argument.
 
 flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN FLOAT KWD_FLOAT COMMA TILDE
 ##
@@ -2849,7 +2858,7 @@ flambda_unit: KWD_APPLY MINUSGREATER IDENT STAR IDENT LPAREN FLOAT KWD_FLOAT COM
 ## exn_extra_arg COMMA
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an exception extra argument after ",".
 
 flambda_unit: KWD_APPLY LPAREN RPAREN TILDE
 ##
@@ -2861,7 +2870,9 @@ flambda_unit: KWD_APPLY LPAREN RPAREN TILDE
 ## call_kind option(inlined) option(inlining_state) simple_args
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "->" after arguments.
+Example of an application:
+  apply f (arg1 arg2) -> cont * exn_cont
 
 flambda_unit: KWD_APPLY MINUSGREATER TILDE
 ##
@@ -2873,7 +2884,9 @@ flambda_unit: KWD_APPLY MINUSGREATER TILDE
 ## call_kind option(inlined) option(inlining_state) simple_args MINUSGREATER
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation after "->".
+Example of an application:
+  apply f (arg1 arg2) -> cont * exn_cont
 
 flambda_unit: KWD_APPLY MINUSGREATER IDENT TILDE
 ##
@@ -2885,7 +2898,9 @@ flambda_unit: KWD_APPLY MINUSGREATER IDENT TILDE
 ## call_kind option(inlined) option(inlining_state) simple_args MINUSGREATER result_continuation
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "*" followed by an exception continuation.
+Example of an application:
+  apply f (arg1 arg2) -> cont * exn_cont
 
 flambda_unit: KWD_HCF TILDE
 ##
@@ -2898,7 +2913,7 @@ flambda_unit: KWD_HCF TILDE
 ## inner_expr
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "where" for continuation binding, or end of expression.
 
 flambda_unit: KWD_HCF KWD_WHERE TILDE
 ##
@@ -2910,7 +2925,7 @@ flambda_unit: KWD_HCF KWD_WHERE TILDE
 ## inner_expr KWD_WHERE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "rec" or a continuation name after "where".
 
 flambda_unit: KWD_HCF KWD_WHERE KWD_REC TILDE
 ##
@@ -2922,7 +2937,7 @@ flambda_unit: KWD_HCF KWD_WHERE KWD_REC TILDE
 ## KWD_REC
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a kinded argument list or a continuation binding after "rec".
 
 flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT RPAREN TILDE
 ##
@@ -2934,7 +2949,7 @@ flambda_unit: KWD_HCF KWD_WHERE KWD_REC LPAREN IDENT RPAREN TILDE
 ## inner_expr KWD_WHERE cont_recursive
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation binding (name params = body).
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT TILDE
 ##
@@ -2946,7 +2961,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT TILDE
 ## continuation_id
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation sort, argument list, or "=" after continuation name.
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT KWD_DEFINE_ROOT_SYMBOL TILDE
 ##
@@ -2958,7 +2973,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT KWD_DEFINE_ROOT_SYMBOL TILDE
 ## continuation_id continuation_sort
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an argument list or "=" after continuation sort.
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT LPAREN IDENT RPAREN TILDE
 ##
@@ -2970,7 +2985,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT LPAREN IDENT RPAREN TILDE
 ## continuation_id continuation_sort kinded_args
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "=" after continuation parameters.
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL TILDE
 ##
@@ -2982,7 +2997,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL TILDE
 ## continuation_id continuation_sort kinded_args EQUAL
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation body expression after "=".
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET TILDE
 ##
@@ -2995,7 +3010,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET TILDE
 ## KWD_LET
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a definition after "let" in continuation body.
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET KWD_CODE IDENT KWD_DELETED KWD_WITH LBRACE RBRACE TILDE
 ##
@@ -3007,7 +3022,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET KWD_CODE IDENT KWD_DELETED K
 ## KWD_LET separated_nonempty_list(KWD_AND,symbol_binding) with_value_slots_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "in" after symbol bindings.
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET KWD_CODE IDENT KWD_DELETED KWD_IN TILDE
 ##
@@ -3019,7 +3034,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET KWD_CODE IDENT KWD_DELETED K
 ## KWD_LET separated_nonempty_list(KWD_AND,symbol_binding) with_value_slots_opt KWD_IN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation body expression after "in".
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE RBRACE TILDE
 ##
@@ -3031,7 +3046,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET IDENT EQUAL PRIM KWD_WITH LB
 ## separated_nonempty_list(KWD_AND,let_binding) with_value_slots_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "in" after let bindings.
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET IDENT EQUAL PRIM KWD_IN TILDE
 ##
@@ -3043,7 +3058,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_LET IDENT EQUAL PRIM KWD_IN TILD
 ## separated_nonempty_list(KWD_AND,let_binding) with_value_slots_opt KWD_IN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation body expression after "in".
 
 flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO INT TILDE
 ##
@@ -3056,7 +3071,7 @@ flambda_unit: KWD_LET IDENT EQUAL KWD_REC_INFO INT TILDE
 ## let_binding
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "and", "with", or "in" after let binding.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_AND TILDE
 ##
@@ -3068,7 +3083,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_AND TILDE
 ## let_binding KWD_AND
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a let binding after "and".
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_HCF TILDE
 ##
@@ -3081,7 +3096,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_HCF TILDE
 ## continuation_binding
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "andwhere" or end of where expression.
 
 flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_HCF KWD_ANDWHERE TILDE
 ##
@@ -3093,7 +3108,7 @@ flambda_unit: KWD_HCF KWD_WHERE IDENT EQUAL KWD_HCF KWD_ANDWHERE TILDE
 ## continuation_binding KWD_ANDWHERE
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected a continuation binding after "andwhere".
 
 flambda_unit: KWD_LET KWD_CODE IDENT KWD_DELETED KWD_WITH LBRACE RBRACE TILDE
 ##
@@ -3105,7 +3120,7 @@ flambda_unit: KWD_LET KWD_CODE IDENT KWD_DELETED KWD_WITH LBRACE RBRACE TILDE
 ## KWD_LET separated_nonempty_list(KWD_AND,symbol_binding) with_value_slots_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "in" after symbol bindings.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE RBRACE TILDE
 ##
@@ -3117,7 +3132,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_WITH LBRACE RBRACE TILDE
 ## separated_nonempty_list(KWD_AND,let_binding) with_value_slots_opt
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected "in" after let bindings.
 
 flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_IN TILDE
 ##
@@ -3129,7 +3144,7 @@ flambda_unit: KWD_LET IDENT EQUAL PRIM KWD_IN TILDE
 ## separated_nonempty_list(KWD_AND,let_binding) with_value_slots_opt KWD_IN
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected an expression after "in".
 
 flambda_unit: LPAREN KWD_HCF KWD_WITH
 ##
@@ -3147,4 +3162,4 @@ flambda_unit: LPAREN KWD_HCF KWD_WITH
 ## In state 409, spurious reduction of production expr -> inner_expr
 ##
 
-<YOUR SYNTAX ERROR MESSAGE HERE>
+Expected ")" after expression.
